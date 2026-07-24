@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Image, Stethoscope, FolderOpen, UserCog,
   Newspaper, Star, Shield, Video, Popcorn, FileText, Settings,
   Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare,
-  Briefcase, Navigation, Share2, Clock
+  Briefcase, Navigation, Share2, Clock, CalendarDays
 } from 'lucide-react';
 
 interface AdminSidebarProps {
