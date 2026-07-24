@@ -8,7 +8,7 @@ import {
   LayoutDashboard, Image, Stethoscope, FolderOpen, UserCog,
   Newspaper, Star, Shield, Video, Popcorn, FileText, Settings,
   Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare,
-  Briefcase, StarRating, Navigation, Share2, Clock
+  Briefcase, Navigation, Share2, Clock
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -36,7 +36,7 @@ const menuItems = [
   { id: 'bookings', label: 'الحجوزات', icon: Calendar },
   { id: 'messages', label: 'الرسائل', icon: MessageSquare },
   { id: 'job-applications', label: 'طلبات التوظيف', icon: Briefcase },
-  { id: 'ratings', label: 'التقييمات', icon: StarRating },
+  { id: 'ratings', label: 'التقييمات', icon: Star },
 ];
 
 export default function AdminSidebar({ currentPage, onPageChange, onLogout }: AdminSidebarProps) {

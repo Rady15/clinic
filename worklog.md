@@ -55,3 +55,109 @@ Stage Summary:
 - RTL Arabic admin interface with #6DB3D7 theme
 - Responsive design with mobile sidebar
 
+---
+Task ID: 3
+Agent: Frontend Developer
+Task: Complete frontend rewrite with API data, i18n (Arabic/English) support, and image-based content
+
+Work Log:
+- Created `src/components/DirProvider.tsx` - client component that reads from `useLanguageStore` and sets `document.documentElement.dir` and `document.documentElement.lang` via useEffect
+- Rewrote `src/app/layout.tsx` - wrapped children in `DirProvider`, kept Cairo font import
+- Rewrote `src/components/layout/Header.tsx`:
+  - Fetches nav items from `/api/public/nav-items` with fallback hardcoded nav
+  - Working language toggle button (EN/AR) that calls `setLocale()`
+  - Phone number from settings API with fallback 9200006802
+  - Small gear icon button for admin page navigation
+  - Real search functionality calling `/api/public/search` API
+  - All text uses `t()` function for i18n
+  - RTL/LTR layout support based on locale
+  - Login modal with bilingual labels
+- Rewrote `src/components/layout/Footer.tsx`:
+  - Fetches settings, social links, working hours, service categories from API
+  - Shows working hours section from API data
+  - Dynamic department links from service categories
+  - Social media links from API
+  - Contact info from settings API
+  - All text uses `t()` for i18n, RTL/LTR support
+- Rewrote `src/components/layout/FloatingElements.tsx`:
+  - WhatsAppFAB: fetches whatsapp number from settings API
+  - SocialSidebar: fetches social links from API with platform-based colors
+  - CookieBar: bilingual text, localStorage persistence
+  - PromoPopup: fetches from API, shows image if available, auto-shows after 3 seconds
+- Rewrote `src/components/pages/HomePage.tsx`:
+  - Fetches ALL data from API: banners, categories, services, doctors, testimonials, videos, articles, insurance, settings
+  - Hero slider uses banner images from API with gradient overlay
+  - Service categories with images or icon placeholders
+  - Featured services with images, prices, and add to cart
+  - Doctor slider with photos from API
+  - Testimonials carousel from API
+  - Video section with thumbnails from API
+  - Blog preview with article images
+  - Insurance companies with logos from API
+  - Working hours info strip from settings
+  - Loading skeletons, RTL/LTR support
+- Rewrote `src/components/pages/ServicesPage.tsx`:
+  - Fetches services and categories from API
+  - Category filter tabs from API
+  - Service images from API with fallback placeholder
+  - Price range filtering, sort options
+  - Add to cart functionality
+  - Pagination, RTL/LTR support
+- Rewrote `src/components/pages/DoctorsPage.tsx`:
+  - Fetches doctors from API
+  - Doctor photos from API with avatar placeholder
+  - Dynamic department filters from API data
+  - Search functionality, RTL/LTR support
+- Rewrote `src/components/pages/AboutPage.tsx`:
+  - Fetches page content from `/api/public/page-content/about`
+  - Shows image if available
+  - Fetches testimonials for preview
+  - Values section with bilingual text
+- Rewrote `src/components/pages/ContactPage.tsx`:
+  - Fetches settings, working hours, social links from API
+  - Contact form POSTs to `/api/public/contact`
+  - Dynamic phone, email, whatsapp from settings
+  - Working hours section from API
+  - Map placeholder
+- Rewrote `src/components/pages/NewsPage.tsx`:
+  - Fetches articles from API
+  - Article images from API
+  - Article detail view with ID param
+  - HTML content rendering
+  - RTL/LTR support
+- Rewrote `src/components/pages/BookingPage.tsx`:
+  - Fetches doctors and categories from API
+  - 3-step booking wizard
+  - Department → Doctor cascade
+  - Doctor photos in selection
+  - Booking form POSTs to `/api/public/booking`
+  - RTL/LTR support
+- Rewrote `src/components/pages/CartPage.tsx`:
+  - Uses existing cart store
+  - RTL/LTR support with bilingual text
+  - Service images in cart items
+- Rewrote `src/components/pages/JobsPage.tsx`:
+  - Fetches contact info from settings API
+  - File upload via FormData POST to `/api/public/job-application`
+  - RTL/LTR support
+- Rewrote `src/components/pages/RatingPage.tsx`:
+  - Fetches departments from service categories API
+  - Rating form POSTs to `/api/public/rating`
+  - RTL/LTR support
+- Rewrote `src/components/pages/AccountPage.tsx`:
+  - Bilingual login/register form
+  - RTL/LTR support
+- Fixed pre-existing bug: `StarRating` import in AdminSidebar (replaced with `Star`)
+- All lint checks pass (0 errors, 1 warning for font loading)
+
+Stage Summary:
+- All 15 frontend components rewritten with API-driven data
+- Complete i18n (Arabic/English) support with language toggle
+- RTL/LTR layout switching based on locale
+- All images fetched from API with fallback placeholders
+- Contact, Booking, Job, and Rating forms POST to API endpoints
+- Search functionality integrated with API
+- Loading skeletons for all data-fetching components
+- Graceful error handling with API fallbacks
+- Consistent visual design maintained (#6DB3D7, #5DADE2, #2C3E50, #EBF5FB)
+

@@ -1,40 +1,95 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
-import { doctors, departments } from '@/data/doctors';
+import { useLanguageStore } from '@/store/language-store';
+import { t } from '@/lib/i18n';
 import { Stethoscope, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface DoctorData {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  specialtyAr: string;
+  specialtyEn: string;
+  experienceAr: string;
+  experienceEn: string;
+  departmentAr: string;
+  departmentEn: string;
+  image: string;
+  order: number;
+  isActive: boolean;
+}
 
 export default function DoctorsPage() {
   const { setCurrentPage } = useNavigationStore();
-  const [selectedDept, setSelectedDept] = useState('الكل');
+  const { locale } = useLanguageStore();
+  const [selectedDept, setSelectedDept] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [doctors, setDoctors] = useState<DoctorData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/public/doctors')
+      .then(r => r.json())
+      .then((data: DoctorData[]) => {
+        setDoctors(data.filter((d: DoctorData) => d.isActive !== false));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  const departments = useMemo(() => {
+    const depts = new Set<string>();
+    doctors.forEach(d => {
+      const dept = locale === 'en' ? d.departmentEn : d.departmentAr;
+      if (dept) depts.add(dept);
+    });
+    return Array.from(depts);
+  }, [doctors, locale]);
 
   const filteredDoctors = useMemo(() => {
     let result = doctors;
-    if (selectedDept !== 'الكل') {
-      result = result.filter(d => d.department === selectedDept);
+    if (selectedDept) {
+      result = result.filter(d => (locale === 'en' ? d.departmentEn : d.departmentAr) === selectedDept);
     }
     if (searchQuery) {
       result = result.filter(d =>
-        d.name.includes(searchQuery) || d.specialty.includes(searchQuery)
+        d.nameAr.includes(searchQuery) || d.nameEn.includes(searchQuery.toLowerCase()) ||
+        d.specialtyAr.includes(searchQuery) || d.specialtyEn.includes(searchQuery.toLowerCase())
       );
     }
     return result;
-  }, [selectedDept, searchQuery]);
+  }, [selectedDept, searchQuery, doctors, locale]);
+
+  if (loading) {
+    return (
+      <main>
+        <Skeleton className="h-48 w-full bg-gray-200" />
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => <Skeleton key={i} className="h-80 rounded-2xl bg-gray-200" />)}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main>
       {/* Hero */}
       <section className="bg-gradient-to-l from-[#6DB3D7] to-[#5DADE2] py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-bold text-white mb-4">الأطباء</motion.h1>
+          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-bold text-white mb-4">
+            {t('doctors.title', locale)}
+          </motion.h1>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center justify-center gap-2 text-white/80">
-            <button onClick={() => setCurrentPage('home')} className="hover:text-white">الرئيسية</button>
+            <button onClick={() => setCurrentPage('home')} className="hover:text-white">{t('nav.home', locale)}</button>
             <span>/</span>
-            <span>الأطباء</span>
+            <span>{t('doctors.title', locale)}</span>
           </motion.div>
         </div>
       </section>
@@ -44,7 +99,7 @@ export default function DoctorsPage() {
         <div className="flex flex-col md:flex-row items-center gap-4 mb-10">
           <div className="relative flex-1 max-w-md">
             <Input
-              placeholder="ابحث عن طبيب..."
+              placeholder={locale === 'en' ? 'Search for a doctor...' : 'ابحث عن طبيب...'}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="pr-4 pl-10 h-11 rounded-xl"
@@ -52,12 +107,17 @@ export default function DoctorsPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7F8C8D]" />
           </div>
           <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setSelectedDept('')}
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${!selectedDept ? 'bg-[#6DB3D7] text-white' : 'bg-[#EBF5FB] text-[#333] hover:bg-[#6DB3D7]/20'}`}
+            >
+              {t('doctors.allDept', locale)}
+            </button>
             {departments.map(dept => (
               <button
                 key={dept}
                 onClick={() => setSelectedDept(dept)}
-                className={`px-5 py-2 rounded-full text-sm font-medium transition-colors
-                  ${selectedDept === dept ? 'bg-[#6DB3D7] text-white' : 'bg-[#EBF5FB] text-[#333] hover:bg-[#6DB3D7]/20'}`}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-colors ${selectedDept === dept ? 'bg-[#6DB3D7] text-white' : 'bg-[#EBF5FB] text-[#333] hover:bg-[#6DB3D7]/20'}`}
               >
                 {dept}
               </button>
@@ -76,19 +136,23 @@ export default function DoctorsPage() {
               className="doctor-card bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-50"
             >
               <div className="h-56 bg-gradient-to-br from-[#EBF5FB] to-[#6DB3D7]/20 flex items-center justify-center">
-                <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-md">
-                  <Stethoscope className="w-14 h-14 text-[#6DB3D7]/50" />
-                </div>
+                {doctor.image ? (
+                  <img src={doctor.image} alt="" className="w-28 h-28 rounded-full object-cover shadow-md" />
+                ) : (
+                  <div className="w-28 h-28 bg-white rounded-full flex items-center justify-center shadow-md">
+                    <Stethoscope className="w-14 h-14 text-[#6DB3D7]/50" />
+                  </div>
+                )}
               </div>
               <div className="p-5 text-center">
-                <h4 className="text-lg font-bold text-[#333] mb-1">{doctor.name}</h4>
-                <p className="text-sm text-[#6DB3D7] font-medium mb-2">{doctor.specialty}</p>
-                <p className="text-xs text-[#7F8C8D] mb-4 line-clamp-2 leading-relaxed">{doctor.experience}</p>
+                <h4 className="text-lg font-bold text-[#333] mb-1">{locale === 'en' ? doctor.nameEn : doctor.nameAr}</h4>
+                <p className="text-sm text-[#6DB3D7] font-medium mb-2">{locale === 'en' ? doctor.specialtyEn : doctor.specialtyAr}</p>
+                <p className="text-xs text-[#7F8C8D] mb-4 line-clamp-2 leading-relaxed">{locale === 'en' ? doctor.experienceEn : doctor.experienceAr}</p>
                 <button
                   onClick={() => setCurrentPage('booking')}
                   className="w-full bg-[#6DB3D7] text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-[#5DADE2] transition-colors"
                 >
-                  إحجز موعد
+                  {t('home.bookAppointment', locale)}
                 </button>
               </div>
             </motion.div>
@@ -97,7 +161,7 @@ export default function DoctorsPage() {
 
         {filteredDoctors.length === 0 && (
           <div className="text-center py-16">
-            <p className="text-xl text-[#7F8C8D]">لا يوجد أطباء في هذا القسم</p>
+            <p className="text-xl text-[#7F8C8D]">{locale === 'en' ? 'No doctors found in this department' : 'لا يوجد أطباء في هذا القسم'}</p>
           </div>
         )}
       </div>
