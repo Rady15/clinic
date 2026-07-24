@@ -14,7 +14,8 @@ export type PageName =
   | 'cart' 
   | 'account' 
   | 'service-category'
-  | 'news-article';
+  | 'news-article'
+  | 'admin';
 
 interface NavigationState {
   currentPage: PageName;

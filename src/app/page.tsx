@@ -15,6 +15,7 @@ import BookingPage from '@/components/pages/BookingPage';
 import RatingPage from '@/components/pages/RatingPage';
 import CartPage from '@/components/pages/CartPage';
 import AccountPage from '@/components/pages/AccountPage';
+import AdminDashboard from '@/components/admin/AdminDashboard';
 import { AnimatePresence, motion } from 'framer-motion';
 
 const pages: Record<string, React.ComponentType> = {
@@ -35,6 +36,12 @@ const pages: Record<string, React.ComponentType> = {
 
 export default function Page() {
   const { currentPage } = useNavigationStore();
+
+  // Admin dashboard - full screen, no header/footer
+  if (currentPage === 'admin') {
+    return <AdminDashboard />;
+  }
+
   const PageComponent = pages[currentPage] || HomePage;
 
   return (
