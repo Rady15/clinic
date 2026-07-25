@@ -62,6 +62,13 @@ const translations: Record<string, Record<Locale, string>> = {
   'home.callUs': { ar: 'اتصل بنا:', en: 'Call Us:' },
   'home.insurance': { ar: 'شركات التأمين', en: 'Insurance Companies' },
 
+  // Before & After Section
+  'beforeAfter.badge': { ar: 'قبل وبعد', en: 'Before & After' },
+  'beforeAfter.title': { ar: 'بعض من قصص النجاح', en: 'Some Success Stories' },
+  'beforeAfter.subtitle': { ar: 'شاهد نتائج حقيقية لمرضانا قبل وبعد العلاج', en: 'See real results of our patients before and after treatment' },
+  'beforeAfter.before': { ar: 'قبل', en: 'Before' },
+  'beforeAfter.after': { ar: 'بعد', en: 'After' },
+
   // Services page
   'services.title': { ar: 'الخدمات', en: 'Services' },
   'services.offers': { ar: 'العروض', en: 'Offers' },

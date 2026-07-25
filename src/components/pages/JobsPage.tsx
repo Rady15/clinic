@@ -25,10 +25,8 @@ export default function JobsPage() {
   useEffect(() => {
     fetch('/api/public/settings')
       .then(r => r.json())
-      .then((data: { key: string; value: string }[]) => {
-        const sMap: Record<string, string> = {};
-        (data || []).forEach((s: { key: string; value: string }) => { sMap[s.key] = s.value; });
-        setSettings(sMap);
+      .then((data: Record<string, string>) => {
+        setSettings(data);
         setLoading(false);
       })
       .catch(() => setLoading(false));

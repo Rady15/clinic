@@ -36,6 +36,7 @@ export default function Header() {
   const [navItems, setNavItems] = useState<NavItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [phone, setPhone] = useState('9200006802');
+  const [logoUrl, setLogoUrl] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -45,9 +46,6 @@ export default function Header() {
       .then(r => r.json())
       .then((data: NavItemData[]) => {
         const parents = data.filter((n: NavItemData) => !n.parentId && n.page !== 'admin');
-        parents.forEach((p: NavItemData) => {
-          p.children = data.filter((n: NavItemData) => n.parentId === p.id);
-        });
         setNavItems(parents.sort((a: NavItemData, b: NavItemData) => (parseInt(a.id.slice(-2)) || 0) - (parseInt(b.id.slice(-2)) || 0)));
       })
       .catch(() => {
@@ -70,14 +68,15 @@ export default function Header() {
           { id: 'f8', labelAr: 'تواصل معنا', labelEn: 'Contact Us', page: 'contact', params: '{}', parentId: null, children: [
             { id: 'f8a', labelAr: 'تواصل معنا', labelEn: 'Contact Us', page: 'contact', params: '{}', parentId: 'f8' },
             { id: 'f8b', labelAr: 'رأيك يهمنا', labelEn: 'Your Opinion Matters', page: 'rating', params: '{}', parentId: 'f8' },
+            { id: 'f8c', labelAr: 'الشكاوى والاقتراحات', labelEn: 'Complaints & Suggestions', page: 'rating', params: '{}', parentId: 'f8' },
           ]},
         ]);
       });
     fetch('/api/public/settings')
       .then(r => r.json())
-      .then((data: { key: string; value: string }[]) => {
-        const p = data.find((s: { key: string }) => s.key === 'phone');
-        if (p) setPhone(p.value);
+      .then((data: Record<string, string>) => {
+        if (data.phone) setPhone(data.phone);
+        if (data.logo_url) setLogoUrl(data.logo_url);
       })
       .catch(() => {})
       .finally(() => { setLoading(false); });
@@ -89,6 +88,7 @@ export default function Header() {
       params = item.params ? JSON.parse(item.params) : {};
     } catch { /* ignore */ }
     setCurrentPage(item.page as any, params);
+    setOpenDropdown(null);
   }, [setCurrentPage]);
 
   const handleSearch = useCallback(async (query: string) => {
@@ -151,9 +151,13 @@ export default function Header() {
               onClick={() => setCurrentPage('home')}
               className="flex items-center gap-3 shrink-0"
             >
-              <div className="w-12 h-12 bg-[#6DB3D7] rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C9</span>
-              </div>
+              {logoUrl ? (
+                <img src={logoUrl} alt="" className="w-12 h-12 object-contain" />
+              ) : (
+                <div className="w-12 h-12 bg-[#6DB3D7] rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">C9</span>
+                </div>
+              )}
               <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-[#2C3E50] leading-tight">
                   {locale === 'en' ? 'Clinic 9' : 'العيادة التاسعة'}
@@ -165,47 +169,44 @@ export default function Header() {
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="relative"
-                  onMouseEnter={() => item.children && setOpenDropdown(item.id)}
-                  onMouseLeave={() => setOpenDropdown(null)}
-                >
-                  <button
-                    onClick={() => {
-                      if (!item.children) handleNavClick(item);
-                    }}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1 whitespace-nowrap
-                      ${currentPage === item.page ? 'text-[#6DB3D7] bg-[#EBF5FB]' : 'text-[#333] hover:text-[#6DB3D7] hover:bg-[#EBF5FB]/50'}`}
+            <nav className="hidden md:flex items-center gap-1">
+              {navItems.map((item) => {
+                const hasDropdown = item.children && item.children.length > 0;
+                const isOpen = openDropdown === item.id;
+
+                return (
+                  <div
+                    key={item.id}
+                    className="relative"
                   >
-                    {locale === 'en' ? item.labelEn : item.labelAr}
-                    {item.children && <ChevronDown className="w-3 h-3" />}
-                  </button>
-                  {/* Dropdown */}
-                  <AnimatePresence>
-                    {item.children && openDropdown === item.id && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        className="absolute top-full right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[200px] z-50"
+                    <button
+                      onClick={() => hasDropdown ? setOpenDropdown(isOpen ? null : item.id) : handleNavClick(item)}
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1 whitespace-nowrap
+                        ${currentPage === item.page ? 'text-[#6DB3D7] bg-[#EBF5FB]' : 'text-[#333] hover:text-[#6DB3D7] hover:bg-[#EBF5FB]/50'}`}
+                    >
+                      {locale === 'en' ? item.labelEn : item.labelAr}
+                      {hasDropdown && <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />}
+                    </button>
+                    {/* Dropdown */}
+                    {hasDropdown && isOpen && (
+                      <div
+                        className="absolute top-full start-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[200px] z-[60]"
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        {item.children.map((child) => (
+                        {item.children!.map((child) => (
                           <button
                             key={child.id}
                             onClick={() => handleNavClick(child)}
-                            className="block w-full text-right px-4 py-2.5 text-sm text-[#333] hover:bg-[#EBF5FB] hover:text-[#6DB3D7] transition-colors"
+                            className="block w-full text-start px-4 py-2.5 text-sm text-[#333] hover:bg-[#EBF5FB] hover:text-[#6DB3D7] transition-colors"
                           >
                             {locale === 'en' ? child.labelEn : child.labelAr}
                           </button>
                         ))}
-                      </motion.div>
+                      </div>
                     )}
-                  </AnimatePresence>
-                </div>
-              ))}
+                  </div>
+                );
+              })}
             </nav>
 
             {/* Actions */}

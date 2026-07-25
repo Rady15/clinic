@@ -14,7 +14,35 @@ async function verifyUploadAuth(req: NextRequest): Promise<boolean> {
 export async function POST(request: NextRequest) {
   try {
     if (!await verifyUploadAuth(request)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json({ error: 'Unauthorized - Please login to admin first' }, { status: 401 });
+    }
+
+    const contentType = request.headers.get('content-type') || '';
+
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await request.formData();
+      const file = formData.get('image') as File | null;
+      const folder = (formData.get('folder') as string) || 'general';
+
+      if (!file) {
+        return NextResponse.json({ error: 'No image file provided' }, { status: 400 });
+      }
+
+      const ext = file.name.split('.').pop() || 'png';
+      const buffer = Buffer.from(await file.arrayBuffer());
+
+      const uploadDir = join(process.cwd(), 'public', 'uploads', folder);
+      if (!existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true });
+      }
+
+      const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
+      const filepath = join(uploadDir, filename);
+
+      await writeFile(filepath, buffer);
+
+      const url = `/uploads/${folder}/${filename}`;
+      return NextResponse.json({ url, filename });
     }
 
     const body = await request.json();
@@ -24,7 +52,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No image data provided' }, { status: 400 });
     }
 
-    // Extract base64 data from data URI
     const matches = image.match(/^data:image\/(\w+);base64,(.+)$/);
     if (!matches) {
       return NextResponse.json({ error: 'Invalid image format' }, { status: 400 });
@@ -34,13 +61,11 @@ export async function POST(request: NextRequest) {
     const base64Data = matches[2];
     const buffer = Buffer.from(base64Data, 'base64');
 
-    // Ensure upload directory exists
     const uploadDir = join(process.cwd(), 'public', 'uploads', folder);
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
 
-    // Generate unique filename
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const filepath = join(uploadDir, filename);
 

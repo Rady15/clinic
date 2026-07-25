@@ -7,9 +7,11 @@ import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
 import {
-  Stethoscope, ChevronLeft, ChevronRight, Star, Clock, ArrowLeft, Play, Shield, ArrowRight
+  Stethoscope, ChevronLeft, ChevronRight, Star, Clock, ArrowLeft, Play, Shield, ArrowRight,
+  ShoppingCart, Heart, Sparkles
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import BeforeAfterSection from '@/components/pages/BeforeAfterSection';
 
 interface BannerData {
   id: string;
@@ -166,8 +168,8 @@ export default function HomePage() {
       setVideos((vidData || []).filter((v: VideoData) => v.isActive !== false).sort((a: VideoData, b: VideoData) => a.order - b.order));
       setArticles((artData || []).filter((a: ArticleData) => a.isActive !== false));
       setInsurance((insData || []).filter((i: InsuranceData) => i.isActive !== false).sort((a: InsuranceData, b: InsuranceData) => a.order - b.order));
-      const wh = (settData || []).find((s: { key: string }) => s.key === 'workingHours');
-      if (wh) setWorkingHoursText(wh.value);
+      const wh = (settData as Record<string, string> | undefined)?.workingHours;
+      if (wh) setWorkingHoursText(wh);
       setLoading(false);
     });
   }, []);
@@ -286,26 +288,28 @@ export default function HomePage() {
       {categories.length > 0 && (
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.ourServices', locale)}</h3>
+            <div className="text-center mb-10">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-3">{t('home.ourServices', locale)}</h3>
+              <p className="text-[#7F8C8D] text-base max-w-2xl mx-auto">
+                {locale === 'en' ? 'Explore our range of specialized medical and cosmetic services' : 'استكشف مجموعتنا من الخدمات الطبية والتجميلية المتخصصة'}
+              </p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {categories.map((cat, i) => (
-                <motion.button
+              {categories.map((cat) => (
+                <button
                   key={cat.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.1 }}
                   onClick={() => setCurrentPage('services', { category: cat.slug })}
-                  className="service-card bg-[#EBF5FB] rounded-2xl p-6 text-center group cursor-pointer"
+                  className="service-card bg-[#EBF5FB] rounded-2xl p-6 text-center group cursor-pointer hover:bg-[#6DB3D7] transition-colors duration-300"
                 >
                   {cat.image ? (
                     <img src={cat.image} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3" />
                   ) : (
-                    <div className="w-16 h-16 bg-[#6DB3D7]/20 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-[#6DB3D7] transition-colors">
-                      <Stethoscope className="w-8 h-8 text-[#6DB3D7] group-hover:text-white transition-colors" />
+                    <div className="w-16 h-16 bg-[#6DB3D7]/20 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-white transition-colors duration-300">
+                      <Stethoscope className="w-8 h-8 text-[#6DB3D7] group-hover:text-[#6DB3D7] transition-colors duration-300" />
                     </div>
                   )}
-                  <p className="text-sm font-semibold text-[#333] leading-tight">{locale === 'en' ? cat.nameEn : cat.nameAr}</p>
-                </motion.button>
+                  <p className="text-sm font-semibold text-[#333] group-hover:text-white transition-colors duration-300 leading-tight">{locale === 'en' ? cat.nameEn : cat.nameAr}</p>
+                </button>
               ))}
             </div>
           </div>
@@ -327,54 +331,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Featured Services */}
+      {/* Premium Services Section */}
       {featuredServices.length > 0 && (
-        <section className="py-16 bg-gray-50">
+        <section className="py-24 bg-[#F8FAFC]">
           <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.suggestedServices', locale)}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredServices.map((service) => (
-                <div key={service.id} className="product-card bg-white rounded-2xl overflow-hidden shadow-sm">
-                  {service.image ? (
-                    <div className="h-48 overflow-hidden">
-                      <img src={service.image} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <ImagePlaceholder className="h-48" />
-                  )}
-                  {service.badge && (
-                    <span className="absolute top-3 right-3 bg-[#6DB3D7] text-white text-xs px-2.5 py-1 rounded-full font-bold">{service.badge}</span>
-                  )}
-                  <div className="p-5">
-                    <p className="text-xs text-[#7F8C8D] mb-1">{locale === 'en' ? service.category?.nameEn : service.category?.nameAr}</p>
-                    <h4 className="font-semibold text-[#333] mb-3 line-clamp-2 leading-relaxed">{locale === 'en' ? service.nameEn : service.nameAr}</h4>
-                    <div className="flex items-center gap-2 mb-3">
-                      {service.originalPrice && (
-                        <span className="text-sm text-[#7F8C8D] line-through">{service.originalPrice.toLocaleString()} {t('services.sar', locale)}</span>
-                      )}
-                      <span className="text-lg font-bold text-[#6DB3D7]">{service.price.toLocaleString()} {t('services.sar', locale)}</span>
-                    </div>
-                    <button
-                      onClick={() => addItem({
-                        id: parseInt(service.id),
-                        name: locale === 'en' ? service.nameEn : service.nameAr,
-                        price: service.price,
-                        originalPrice: service.originalPrice || undefined,
-                        image: service.image,
-                        category: locale === 'en' ? service.category?.nameEn || '' : service.category?.nameAr || '',
-                      })}
-                      className="w-full bg-[#6DB3D7] text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-[#5DADE2] transition-colors"
-                    >
-                      {t('home.addToCart', locale)}
-                    </button>
-                  </div>
-                </div>
+            <div className="text-center mb-20">
+              <h3 className="text-4xl md:text-5xl font-bold text-[#2C3E50] mb-5 tracking-tight">{t('home.suggestedServices', locale)}</h3>
+              <p className="text-[#7F8C8D] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                {locale === 'en' ? 'Discover our premium medical and cosmetic services designed for your wellbeing' : 'اكتشف خدماتنا الطبية والتجميلية المميزة المصممة لراحتك'}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+              {featuredServices.map((service, index) => (
+                <PremiumServiceCard
+                  key={service.id}
+                  service={service}
+                  index={index}
+                  locale={locale}
+                  addItem={addItem}
+                  t={t}
+                />
               ))}
             </div>
-            <div className="text-center mt-8">
-              <button onClick={() => setCurrentPage('services')} className="text-[#6DB3D7] font-semibold hover:underline flex items-center gap-2 mx-auto">
-                <ArrowLeft className="w-4 h-4" />
-                {t('home.viewAllServices', locale)}
+
+            {/* View All Services */}
+            <div className="text-center mt-16">
+              <button
+                onClick={() => setCurrentPage('services')}
+                className="inline-flex items-center gap-3 bg-[#6DB3D7] text-white px-10 py-4 rounded-2xl font-semibold text-base hover:bg-[#5DADE2] transition-all duration-300 hover:shadow-xl hover:shadow-[#6DB3D7]/30"
+              >
+                {locale === 'en' ? 'View All Services' : 'عرض جميع الخدمات'}
+                <ArrowRight className="w-5 h-5" />
               </button>
             </div>
           </div>
@@ -471,6 +459,9 @@ export default function HomePage() {
         </section>
       )}
 
+      {/* Before & After Section */}
+      <BeforeAfterSection />
+
       {/* Videos Section */}
       {videos.length > 0 && (
         <section className="py-16">
@@ -564,5 +555,136 @@ export default function HomePage() {
         </section>
       )}
     </main>
+  );
+}
+
+function PremiumServiceCard({ service, index, locale, addItem, t }: {
+  service: ServiceData;
+  index: number;
+  locale: string;
+  addItem: (item: any) => void;
+  t: (key: string, locale: string) => string;
+}) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isButtonHovered, setIsButtonHovered] = useState(false);
+
+  return (
+    <motion.div
+      custom={index}
+      variants={{
+        hidden: { opacity: 0, y: 40, scale: 0.96 },
+        visible: (i: number) => ({
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          transition: { duration: 0.7, delay: i * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }
+        })
+      }}
+      initial="hidden"
+      animate="visible"
+      className="group relative bg-white rounded-[24px] overflow-hidden transition-all duration-[450ms] ease-out hover:-translate-y-2 hover:shadow-[0_20px_60px_-15px_rgba(109,179,215,0.25)] border border-[#edf2f7] hover:border-[#6DB3D7]/40 cursor-pointer"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); setIsButtonHovered(false); }}
+    >
+      {/* Image Container - 70-75% of card */}
+      <div className="relative h-[300px] overflow-hidden bg-gray-100">
+        {service.image ? (
+          <img
+            src={service.image}
+            alt=""
+            className="w-full h-full object-cover transition-all duration-[700ms] ease-out group-hover:scale-108 group-hover:brightness-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-[#EBF5FB] to-[#6DB3D7]/20 flex items-center justify-center">
+            <ShoppingCart className="w-16 h-16 text-[#6DB3D7]/40" />
+          </div>
+        )}
+
+        {/* Badge */}
+        {service.badge && (
+          <span className="absolute top-5 right-5 bg-[#2C3E50] text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg z-10">
+            {service.badge}
+          </span>
+        )}
+
+        {service.isOffer && (
+          <span className="absolute top-5 left-5 bg-red-500 text-white text-xs px-3.5 py-1.5 rounded-full font-bold shadow-lg flex items-center gap-1 z-10">
+            <Sparkles className="w-3 h-3" />
+            {locale === 'en' ? 'Offer' : 'عرض'}
+          </span>
+        )}
+
+        {/* Circular Cart Button - expands to full width on card hover */}
+        <div
+          className="absolute bottom-5 left-5 transition-all duration-[350ms] ease-out z-10"
+          style={{
+            width: isHovered ? 'calc(100% - 2.5rem)' : '48px',
+            height: '48px',
+          }}
+        >
+          <button
+            onMouseEnter={() => setIsButtonHovered(true)}
+            onMouseLeave={() => setIsButtonHovered(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              addItem({
+                id: parseInt(service.id) || 0,
+                name: locale === 'en' ? service.nameEn : service.nameAr,
+                price: service.price,
+                originalPrice: service.originalPrice || undefined,
+                image: service.image,
+                category: locale === 'en' ? service.category?.nameEn || '' : service.category?.nameAr || '',
+              });
+            }}
+            className="w-full h-full bg-[#6DB3D7] text-white rounded-full hover:bg-[#5DADE2] transition-all duration-300 flex items-center justify-center relative overflow-hidden shadow-lg hover:shadow-xl"
+          >
+            {/* Text */}
+            <span
+              className="transition-all duration-[250ms] ease-out absolute whitespace-nowrap font-semibold text-sm"
+              style={{
+                opacity: isHovered ? 1 : 0,
+                transform: isHovered ? 'translateX(0)' : 'translateX(10px)',
+              }}
+            >
+              {t('home.addToCart', locale)}
+            </span>
+
+            {/* Cart Icon */}
+            <ShoppingCart
+              className="w-5 h-5 transition-all duration-[250ms] ease-out absolute"
+              style={{
+                opacity: isHovered ? 0 : 1,
+                transform: isHovered ? 'scale(0.8) rotate(-10deg)' : 'scale(1) rotate(0deg)',
+              }}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Floating White Panel - overlaps bottom 20-25% of image */}
+      <div className="relative bg-white rounded-[22px] -mt-8 mx-4 p-6 shadow-lg">
+        {/* Category Badge */}
+        <span className="inline-block bg-[#EBF5FB] text-[#6DB3D7] text-xs font-semibold px-3 py-1 rounded-full mb-3">
+          {locale === 'en' ? service.category?.nameEn : service.category?.nameAr}
+        </span>
+
+        {/* Title */}
+        <h4 className="font-bold text-[#2C3E50] text-xl mb-3 leading-tight line-clamp-2">
+          {locale === 'en' ? service.nameEn : service.nameAr}
+        </h4>
+
+        {/* Price */}
+        <div className="flex items-center gap-3">
+          {service.originalPrice && service.originalPrice > service.price && (
+            <span className="text-sm text-[#7F8C8D] line-through">
+              {service.originalPrice.toLocaleString()} {t('services.sar', locale)}
+            </span>
+          )}
+          <span className="text-xl font-bold text-[#6DB3D7]">
+            {service.price.toLocaleString()} {t('services.sar', locale)}
+          </span>
+        </div>
+      </div>
+    </motion.div>
   );
 }

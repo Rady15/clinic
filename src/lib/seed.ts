@@ -152,14 +152,14 @@ export async function seedDatabase() {
   if (existingInsurance === 0) {
     await db.insuranceCompany.createMany({
       data: [
-        { nameAr: 'بوبا', nameEn: 'Bupa', order: 1 },
-        { nameAr: 'تكافل', nameEn: 'Takaful', order: 2 },
-        { nameAr: 'ميدغلف', nameEn: 'Medgulf', order: 3 },
-        { nameAr: 'أكسا', nameEn: 'AXA', order: 4 },
-        { nameAr: 'التعاونية', nameEn: 'Cooperative', order: 5 },
-        { nameAr: 'ولاء', nameEn: 'Walaa', order: 6 },
-        { nameAr: 'أسياسة', nameEn: 'Aseelah', order: 7 },
-        { nameAr: 'ساب', nameEn: 'SAB', order: 8 },
+        { nameAr: 'بوبا', nameEn: 'Bupa', logo: 'https://companieslogo.com/img/orig/8210.SR-b6db68cc.png', order: 1 },
+        { nameAr: 'تكافل', nameEn: 'Takaful', logo: 'https://companieslogo.com/img/orig/8230.SR-8290a9f8.png', order: 2 },
+        { nameAr: 'ميدغلف', nameEn: 'Medgulf', logo: 'https://companieslogo.com/img/orig/8030.SR_BIG-32d46cc2.png', order: 3 },
+        { nameAr: 'أكسا', nameEn: 'AXA', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/AXA_logo.svg/230px-AXA_logo.svg.png', order: 4 },
+        { nameAr: 'التعاونية', nameEn: 'Cooperative', logo: 'https://companieslogo.com/img/orig/8010.SR-890ea7cf.png', order: 5 },
+        { nameAr: 'ولاء', nameEn: 'Walaa', logo: 'https://companieslogo.com/img/orig/8060.SR_BIG-49588bcc.png', order: 6 },
+        { nameAr: 'أسياسة', nameEn: 'Aseelah', logo: '', order: 7 },
+        { nameAr: 'ساب', nameEn: 'SAB', logo: '', order: 8 },
       ],
     });
     console.log('✅ Insurance companies seeded');
@@ -219,23 +219,27 @@ export async function seedDatabase() {
   // 13. Nav Items
   const existingNav = await db.navItem.count();
   if (existingNav === 0) {
-    const navs = await Promise.all([
-      db.navItem.create({ data: { labelAr: 'الرئيسية', labelEn: 'Home', page: 'home', order: 1 } }),
-      db.navItem.create({ data: { labelAr: 'من نحن', labelEn: 'About Us', page: 'about', order: 2 } }),
-      db.navItem.create({ data: { labelAr: 'الخدمات', labelEn: 'Services', page: 'services', order: 3 } }),
-      db.navItem.create({ data: { labelAr: 'الأطباء', labelEn: 'Doctors', page: 'doctors', order: 4 } }),
-      db.navItem.create({ data: { labelAr: 'الأخبار و المقالات', labelEn: 'News & Articles', page: 'news', order: 5 } }),
-      db.navItem.create({ data: { labelAr: 'الوظائف', labelEn: 'Jobs', page: 'jobs', order: 6 } }),
-      db.navItem.create({ data: { labelAr: 'تواصل معنا', labelEn: 'Contact Us', page: 'contact', order: 7 } }),
-    ]);
-    await db.navItem.create({ data: { labelAr: 'العروض الرئيسية', labelEn: 'Main Offers', page: 'offers', parentId: navs[2].id, order: 1 } });
-    await db.navItem.create({ data: { labelAr: 'جلدية', labelEn: 'Dermatology', page: 'services', params: JSON.stringify({ category: 'dermatology' }), parentId: navs[2].id, order: 2 } });
-    await db.navItem.create({ data: { labelAr: 'ليزر', labelEn: 'Laser', page: 'services', params: JSON.stringify({ category: 'laser' }), parentId: navs[2].id, order: 3 } });
-    await db.navItem.create({ data: { labelAr: 'الأسنان', labelEn: 'Dental', page: 'services', params: JSON.stringify({ category: 'dental' }), parentId: navs[2].id, order: 4 } });
-    await db.navItem.create({ data: { labelAr: 'التجميل النسائي', labelEn: 'Female Cosmetic', page: 'services', params: JSON.stringify({ category: 'female-cosmetic' }), parentId: navs[2].id, order: 5 } });
-    await db.navItem.create({ data: { labelAr: 'باقات التخسيس', labelEn: 'Slimming Packages', page: 'services', params: JSON.stringify({ category: 'nutrition' }), parentId: navs[2].id, order: 6 } });
-    await db.navItem.create({ data: { labelAr: 'الشكاوى و الاقتراحات', labelEn: 'Complaints', page: 'rating', parentId: navs[6].id, order: 1 } });
-    await db.navItem.create({ data: { labelAr: 'رأيك يهمنا', labelEn: 'Your Opinion', page: 'rating', parentId: navs[6].id, order: 2 } });
+    const home = await db.navItem.create({ data: { labelAr: 'الرئيسية', labelEn: 'Home', page: 'home', order: 1 } });
+    const about = await db.navItem.create({ data: { labelAr: 'من نحن', labelEn: 'About Us', page: 'about', order: 2 } });
+    const offers = await db.navItem.create({ data: { labelAr: 'العروض', labelEn: 'Offers', page: 'offers', order: 3 } });
+    const services = await db.navItem.create({ data: { labelAr: 'الخدمات', labelEn: 'Services', page: 'services', order: 4 } });
+    const doctors = await db.navItem.create({ data: { labelAr: 'الأطباء', labelEn: 'Doctors', page: 'doctors', order: 5 } });
+    const news = await db.navItem.create({ data: { labelAr: 'الأخبار و المقالات', labelEn: 'News & Articles', page: 'news', order: 6 } });
+    const jobs = await db.navItem.create({ data: { labelAr: 'الوظائف', labelEn: 'Jobs', page: 'jobs', order: 7 } });
+    const contact = await db.navItem.create({ data: { labelAr: 'تواصل معنا', labelEn: 'Contact Us', page: 'contact', order: 8 } });
+
+    await db.navItem.create({ data: { labelAr: 'العروض الرئيسية', labelEn: 'Main Offers', page: 'offers', parentId: offers.id, order: 1 } });
+
+    await db.navItem.create({ data: { labelAr: 'جلدية', labelEn: 'Dermatology', page: 'services', params: JSON.stringify({ category: 'dermatology' }), parentId: services.id, order: 1 } });
+    await db.navItem.create({ data: { labelAr: 'ليزر', labelEn: 'Laser', page: 'services', params: JSON.stringify({ category: 'laser' }), parentId: services.id, order: 2 } });
+    await db.navItem.create({ data: { labelAr: 'الأسنان', labelEn: 'Dental', page: 'services', params: JSON.stringify({ category: 'dental' }), parentId: services.id, order: 3 } });
+    await db.navItem.create({ data: { labelAr: 'التجميل النسائي', labelEn: 'Female Cosmetic', page: 'services', params: JSON.stringify({ category: 'female-cosmetic' }), parentId: services.id, order: 4 } });
+    await db.navItem.create({ data: { labelAr: 'باقات التخسيس', labelEn: 'Slimming Packages', page: 'services', params: JSON.stringify({ category: 'nutrition' }), parentId: services.id, order: 5 } });
+
+    await db.navItem.create({ data: { labelAr: 'تواصل معنا', labelEn: 'Contact Us', page: 'contact', parentId: contact.id, order: 1 } });
+    await db.navItem.create({ data: { labelAr: 'رأيك يهمنا', labelEn: 'Your Opinion Matters', page: 'rating', parentId: contact.id, order: 2 } });
+    await db.navItem.create({ data: { labelAr: 'الشكاوى والاقتراحات', labelEn: 'Complaints & Suggestions', page: 'rating', parentId: contact.id, order: 3 } });
+
     console.log('✅ Nav items seeded');
   }
 
@@ -270,6 +274,115 @@ export async function seedDatabase() {
       ],
     });
     console.log('✅ Working hours seeded');
+  }
+
+  // Before/After Cases
+  const existingBeforeAfter = await db.beforeAfterCase.count();
+  if (existingBeforeAfter === 0) {
+    await db.beforeAfterCase.createMany({
+      data: [
+        {
+          doctorNameAr: 'د. حنان محمد', doctorNameEn: 'Dr. Hanan Mohamed',
+          treatmentAr: 'علاج حب الشباب', treatmentEn: 'Acne Treatment',
+          categoryAr: 'جلدية', categoryEn: 'Dermatology',
+          branchAr: 'الفرع الرئيسي', branchEn: 'Main Branch',
+          beforeImage: '/uploads/categories/dermatology.jpg',
+          afterImage: '/uploads/services/svc6.jpg',
+          dividerPosition: 50, order: 1, isActive: true,
+        },
+        {
+          doctorNameAr: 'د. لورانس يوسف', doctorNameEn: 'Dr. Lawrence Youssef',
+          treatmentAr: 'تبييض الأسنان', treatmentEn: 'Teeth Whitening',
+          categoryAr: 'الأسنان', categoryEn: 'Dental',
+          branchAr: 'الفرع الرئيسي', branchEn: 'Main Branch',
+          beforeImage: '/uploads/services/svc2.jpg',
+          afterImage: '/uploads/services/svc10.jpg',
+          dividerPosition: 40, order: 2, isActive: true,
+        },
+        {
+          doctorNameAr: 'د. مروة المحلاوي', doctorNameEn: 'Dr. Marwa El-Mahlawy',
+          treatmentAr: 'تقشير كربوني', treatmentEn: 'Carbon Peel',
+          categoryAr: 'جلدية', categoryEn: 'Dermatology',
+          branchAr: 'فرع النساء', branchEn: 'Women Branch',
+          beforeImage: '/uploads/services/svc9.jpg',
+          afterImage: '/uploads/services/svc8.jpg',
+          dividerPosition: 60, order: 3, isActive: true,
+        },
+        {
+          doctorNameAr: 'د. مازن العموري', doctorNameEn: 'Dr. Mazen Al-Omouri',
+          treatmentAr: 'تقويم الأسنان', treatmentEn: 'Orthodontics',
+          categoryAr: 'الأسنان', categoryEn: 'Dental',
+          branchAr: 'الفرع الرئيسي', branchEn: 'Main Branch',
+          beforeImage: '/uploads/banners/banner2.jpg',
+          afterImage: '/uploads/banners/banner3.jpg',
+          dividerPosition: 45, order: 4, isActive: true,
+        },
+        {
+          doctorNameAr: 'د. أمل أبو المعاطي', doctorNameEn: 'Dr. Amal Abu El-Mataati',
+          treatmentAr: 'تنظيف بشرة عميق', treatmentEn: 'Deep Skin Cleansing',
+          categoryAr: 'جلدية', categoryEn: 'Dermatology',
+          branchAr: 'فرع النساء', branchEn: 'Women Branch',
+          beforeImage: '/uploads/articles/art1.jpg',
+          afterImage: '/uploads/articles/art2.jpg',
+          dividerPosition: 35, order: 5, isActive: true,
+        },
+        {
+          doctorNameAr: 'د. وسيم وجوخ', doctorNameEn: 'Dr. Waseem Wajoukh',
+          treatmentAr: 'زراعة سن واحد', treatmentEn: 'Single Tooth Implant',
+          categoryAr: 'الأسنان', categoryEn: 'Dental',
+          branchAr: 'الفرع الرئيسي', branchEn: 'Main Branch',
+          beforeImage: '/uploads/categories/dental.jpg',
+          afterImage: '/uploads/services/svc2.jpg',
+          dividerPosition: 55, order: 6, isActive: true,
+        },
+      ],
+    });
+    console.log('✅ Before/After cases seeded');
+  }
+
+  const existingOrders = await db.order.count();
+  if (existingOrders === 0) {
+    const services = await db.service.findMany({ where: { isActive: true }, take: 3 });
+    if (services.length > 0) {
+      const order = await db.order.create({
+        data: {
+          name: 'أحمد محمد',
+          email: 'ahmed@example.com',
+          phone: '0501234567',
+          total: services.reduce((s, svc) => s + svc.price * 1.15, 0),
+          subtotal: services.reduce((s, svc) => s + svc.price, 0),
+          tax: services.reduce((s, svc) => s + svc.price * 0.15, 0),
+          status: 'confirmed',
+          paymentStatus: 'paid',
+          paymentIntentId: 'pi_demo_' + Date.now(),
+          stripeSessionId: 'cs_demo_' + Date.now(),
+          items: {
+            create: services.map(svc => ({
+              serviceId: svc.id,
+              nameAr: svc.nameAr,
+              nameEn: svc.nameEn,
+              price: svc.price,
+              quantity: 1,
+              image: svc.image,
+            })),
+          },
+        },
+      });
+      await db.payment.create({
+        data: {
+          amount: order.total,
+          currency: 'SAR',
+          status: 'succeeded',
+          paymentIntentId: order.paymentIntentId,
+          stripeSessionId: order.stripeSessionId,
+          customerEmail: order.email,
+          customerName: order.name,
+          orderId: order.id,
+          paymentMethod: 'stripe',
+        },
+      });
+      console.log('✅ Demo order seeded');
+    }
   }
 
   console.log('🎉 Database seeding completed!');

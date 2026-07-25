@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
-import { Check, Stethoscope, User, CreditCard } from 'lucide-react';
+import { Check, Stethoscope, User, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -68,16 +68,27 @@ export default function BookingPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      await fetch('/api/public/booking', {
+      const res = await fetch('/api/public/booking/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...form,
+          name: form.name,
+          phone: form.phone,
+          email: form.email,
           department: selectedDept,
           doctorId: selectedDoctorId,
+          date: form.date,
+          time: form.time,
+          notes: form.notes,
+          amount: 0,
         }),
       });
-      setSubmitted(true);
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(locale === 'en' ? 'Error creating checkout' : 'خطأ في إنشاء عملية الدفع');
+      }
     } catch {
       alert(locale === 'en' ? 'Error submitting booking' : 'خطأ في إرسال الحجز');
     }

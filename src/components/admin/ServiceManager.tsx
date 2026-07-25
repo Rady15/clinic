@@ -5,7 +5,7 @@ import CrudManager, { Column } from './CrudManager';
 
 const columns: Column[] = [
   { key: 'nameAr', label: 'الاسم (عربي)' },
-  { key: 'category', label: 'التصنيف' },
+  { key: 'categoryId', label: 'التصنيف' },
   { key: 'price', label: 'السعر', type: 'price' },
   { key: 'image', label: 'الصورة', type: 'image' },
   { key: 'isOffer', label: 'عرض', type: 'badge' },

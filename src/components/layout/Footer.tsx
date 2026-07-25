@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
-import { Phone, Mail, MessageCircle, Instagram, Youtube, MapPin, Clock } from 'lucide-react';
+import { Phone, Mail, MessageCircle, Instagram, Youtube, MapPin, Clock, Twitter, Music, Ghost } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface SocialLinkData {
@@ -48,7 +48,7 @@ export default function Footer() {
       fetch('/api/public/service-categories').then(r => r.json()).catch(() => []),
     ]).then(([settData, socialData, hoursData, catData]) => {
       const sMap: Record<string, string> = {};
-      (settData || []).forEach((s: { key: string; value: string }) => { sMap[s.key] = s.value; });
+      Object.entries(settData || {}).forEach(([key, value]) => { sMap[key] = value as string; });
       setSettings(sMap);
       setSocialLinks((socialData || []).filter((s: SocialLinkData) => s.isActive !== false));
       setWorkingHours((hoursData || []).filter((h: WorkingHourData) => h.isActive !== false).sort((a: WorkingHourData, b: WorkingHourData) => a.order - b.order));
@@ -63,14 +63,15 @@ export default function Footer() {
   const clinicName = settings.clinicName || (locale === 'en' ? 'Clinic 9' : 'العيادة التاسعة');
   const clinicDesc = settings.clinicDesc || (locale === 'en' ? 'Clinic 9 Medical Center - Providing high-quality healthcare services' : 'مركز العيادة التاسعة الطبي - نقدم خدمات صحية ذات جودة متميزة');
   const address = settings.address || (locale === 'en' ? 'Eastern Province, Saudi Arabia' : 'المنطقة الشرقية، المملكة العربية السعودية');
+  const logoUrl = settings.logo_url || '';
 
   const socialIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
     instagram: Instagram,
     youtube: Youtube,
-    snapchat: MessageCircle,
-    tiktok: MessageCircle,
-    twitter: MessageCircle,
-    whatsapp: MessageCircle,
+    snapchat: Ghost,
+    tiktok: Music,
+    twitter: Twitter,
+    whatsapp: Phone,
   };
 
   if (loading) {

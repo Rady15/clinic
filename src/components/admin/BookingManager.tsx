@@ -57,6 +57,17 @@ export default function BookingManager() {
     completed: 'مكتمل',
   };
 
+  const paymentColors: Record<string, string> = {
+    paid: 'bg-green-100 text-green-800',
+    pending: 'bg-yellow-100 text-yellow-800',
+    failed: 'bg-red-100 text-red-800',
+  };
+  const paymentLabels: Record<string, string> = {
+    paid: 'مدفوع',
+    pending: 'قيد الانتظار',
+    failed: 'فشل الدفع',
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
@@ -88,13 +99,14 @@ export default function BookingManager() {
                   <th className="text-right p-3">القسم</th>
                   <th className="text-right p-3">التاريخ</th>
                   <th className="text-right p-3">الوقت</th>
+                  <th className="text-right p-3">حالة الدفع</th>
                   <th className="text-right p-3">الحالة</th>
                   <th className="text-right p-3">إجراءات</th>
                 </tr>
               </thead>
               <tbody>
                 {bookings.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center p-8 text-gray-400">لا توجد حجوزات</td></tr>
+                  <tr><td colSpan={9} className="text-center p-8 text-gray-400">لا توجد حجوزات</td></tr>
                 ) : bookings.map((b) => (
                   <tr key={b.id} className="border-b border-gray-100 hover:bg-gray-50">
                     <td className="p-3 font-medium">{b.name}</td>
@@ -103,6 +115,11 @@ export default function BookingManager() {
                     <td className="p-3">{b.department}</td>
                     <td className="p-3">{b.date}</td>
                     <td className="p-3">{b.time}</td>
+                    <td className="p-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${paymentColors[b.paymentStatus] || 'bg-gray-100 text-gray-800'}`}>
+                        {paymentLabels[b.paymentStatus] || b.paymentStatus}
+                      </span>
+                    </td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[b.status] || ''}`}>
                         {statusLabels[b.status] || b.status}

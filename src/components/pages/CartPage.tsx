@@ -5,14 +5,49 @@ import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useState } from 'react';
 
 export default function CartPage() {
   const { setCurrentPage } = useNavigationStore();
   const { locale } = useLanguageStore();
   const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
   const total = getTotal();
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/public/checkout/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            serviceId: item.id,
+            nameAr: item.name,
+            nameEn: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+            category: item.category,
+          })),
+          customerEmail: '',
+          customerName: '',
+          customerPhone: '',
+        }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(locale === 'en' ? 'Failed to start checkout' : 'فشل في بدء عملية الدفع');
+      }
+    } catch {
+      alert(locale === 'en' ? 'Error during checkout' : 'خطأ أثناء عملية الدفع');
+    }
+    setLoading(false);
+  };
 
   if (items.length === 0) {
     return (
@@ -46,7 +81,6 @@ export default function CartPage() {
 
       <div className="max-w-5xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
             {items.map(item => (
               <motion.div key={item.id} layout className="bg-white rounded-2xl p-5 shadow-sm flex items-center gap-4">
@@ -88,7 +122,6 @@ export default function CartPage() {
             </button>
           </div>
 
-          {/* Summary */}
           <div className="bg-white rounded-2xl p-6 shadow-sm h-fit sticky top-28">
             <h3 className="font-bold text-[#2C3E50] text-lg mb-6">{locale === 'en' ? 'Order Summary' : 'ملخص الطلب'}</h3>
             <div className="space-y-3 mb-6">
@@ -105,7 +138,12 @@ export default function CartPage() {
                 <span className="font-bold text-[#6DB3D7] text-xl">{(total * 1.15).toFixed(0)} {t('services.sar', locale)}</span>
               </div>
             </div>
-            <Button className="w-full bg-[#6DB3D7] hover:bg-[#5DADE2] text-white h-12 font-semibold rounded-xl">
+            <Button
+              onClick={handleCheckout}
+              disabled={loading || items.length === 0}
+              className="w-full bg-[#6DB3D7] hover:bg-[#5DADE2] text-white h-12 font-semibold rounded-xl flex items-center justify-center gap-2"
+            >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {t('cart.checkout', locale)}
             </Button>
             <button onClick={() => setCurrentPage('services')} className="w-full text-center text-sm text-[#6DB3D7] font-medium mt-3 hover:underline">
@@ -117,3 +155,4 @@ export default function CartPage() {
     </main>
   );
 }
+

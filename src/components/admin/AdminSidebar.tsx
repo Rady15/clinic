@@ -7,8 +7,7 @@ import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard, Image, Stethoscope, FolderOpen, UserCog,
   Newspaper, Star, Shield, Video, Popcorn, FileText, Settings,
-  Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare,
-  Briefcase, Navigation, Share2, Clock, CalendarDays
+  Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare, Calendar, Briefcase, Navigation, Share2, Clock, CalendarDays, Receipt
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -25,6 +24,7 @@ const menuItems = [
   { id: 'doctors', label: 'الأطباء', icon: UserCog },
   { id: 'articles', label: 'المقالات', icon: Newspaper },
   { id: 'testimonials', label: 'آراء العملاء', icon: Star },
+  { id: 'before-after', label: 'قصص النجاح', icon: Star },
   { id: 'insurance', label: 'شركات التأمين', icon: Shield },
   { id: 'videos', label: 'الفيديوهات', icon: Video },
   { id: 'promo-popup', label: 'النافذة المنبثقة', icon: Popcorn },
@@ -34,6 +34,7 @@ const menuItems = [
   { id: 'social-links', label: 'روابط التواصل', icon: Share2 },
   { id: 'working-hours', label: 'ساعات العمل', icon: Clock },
   { id: 'bookings', label: 'الحجوزات', icon: Calendar },
+  { id: 'orders', label: 'الطلبات', icon: Receipt },
   { id: 'messages', label: 'الرسائل', icon: MessageSquare },
   { id: 'job-applications', label: 'طلبات التوظيف', icon: Briefcase },
   { id: 'ratings', label: 'التقييمات', icon: Star },

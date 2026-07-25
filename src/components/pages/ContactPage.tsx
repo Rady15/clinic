@@ -44,9 +44,7 @@ export default function ContactPage() {
       fetch('/api/public/social-links').then(r => r.json()).catch(() => []),
     ]).then(([hoursData, settData, socialData]) => {
       setWorkingHours((hoursData || []).filter((h: WorkingHourData) => h.isActive !== false).sort((a: WorkingHourData, b: WorkingHourData) => a.order - b.order));
-      const sMap: Record<string, string> = {};
-      (settData || []).forEach((s: { key: string; value: string }) => { sMap[s.key] = s.value; });
-      setSettings(sMap);
+      setSettings(settData || {});
       setSocialLinks(socialData || []);
       setLoading(false);
     });

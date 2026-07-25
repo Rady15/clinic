@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, RefreshCw, Upload, Search } from 'lucide-react';
 
-interface Column {
+export interface Column {
   key: string;
   label: string;
   type?: 'text' | 'image' | 'badge' | 'switch' | 'number' | 'price';
@@ -36,34 +36,52 @@ interface FieldConfig {
   labelEn?: string;
   type: 'text' | 'textarea' | 'number' | 'image' | 'select' | 'switch' | 'json';
   placeholder?: string;
+  placeholderEn?: string;
   options?: { label: string; value: string }[];
 }
 
 function ImageUploader({ value, onChange, label }: { value: string; onChange: (v: string) => void; label: string }) {
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
+    setError(null);
+
     try {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = reader.result as string;
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ image: base64, folder: label }),
-        });
-        const data = await res.json();
-        if (data.url) {
-          onChange(data.url);
-        }
-        setUploading(false);
-      };
-      reader.readAsDataURL(file);
-    } catch {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', label);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || `خطأ في الرفع (${res.status})`);
+      }
+
+      if (data.url) {
+        onChange(data.url);
+      } else {
+        throw new Error('لم يتم إرجاع رابط الصورة');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'خطأ غير معروف';
+      console.error('Upload error:', err);
+      setError(msg);
+    } finally {
       setUploading(false);
+      if (inputRef.current) {
+        inputRef.current.value = '';
+      }
     }
   };
 
@@ -74,19 +92,20 @@ function ImageUploader({ value, onChange, label }: { value: string; onChange: (v
         {value && (
           <img src={value} alt="" className="w-16 h-16 object-cover rounded-lg border" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
         )}
-        <label className="cursor-pointer">
-          <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
-          <Button type="button" variant="outline" size="sm" disabled={uploading} className="gap-1">
-            <Upload className="h-3 w-3" />
-            {uploading ? 'جاري الرفع...' : 'رفع صورة'}
-          </Button>
-        </label>
+        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
+        <Button type="button" variant="outline" size="sm" disabled={uploading} className="gap-1" onClick={() => inputRef.current?.click()}>
+          <Upload className="h-3 w-3" />
+          {uploading ? 'جاري الرفع...' : 'رفع صورة'}
+        </Button>
         {value && (
           <Button type="button" variant="ghost" size="sm" onClick={() => onChange('')}>
             حذف
           </Button>
         )}
       </div>
+      {error && (
+        <p className="text-xs text-red-500 bg-red-50 p-2 rounded">{error}</p>
+      )}
       <input type="hidden" value={value} />
     </div>
   );
@@ -137,10 +156,16 @@ export default function CrudManager({ title, apiPath, columns, fields, transform
     setLoading(true);
     try {
       const res = await fetch(apiPath);
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
+      console.log(`Loaded ${apiPath} data:`, data);
       setItems(Array.isArray(data) ? data : []);
-    } catch {
-      toast({ title: 'خطأ في تحميل البيانات', variant: 'destructive' });
+    } catch (error) {
+      console.error(`Error loading ${apiPath}:`, error);
+      toast({ title: 'خطأ في تحميل البيانات', description: error instanceof Error ? error.message : 'خطأ غير معروف', variant: 'destructive' });
+      setItems([]);
     } finally {
       setLoading(false);
     }
@@ -249,7 +274,21 @@ export default function CrudManager({ title, apiPath, columns, fields, transform
                       {columns.map((col) => (
                         <td key={col.key} className="p-3">
                           {col.type === 'image' && item[col.key] ? (
-                            <img src={item[col.key]} alt="" className="w-10 h-10 rounded object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                            <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+                              <img 
+                                src={item[col.key]} 
+                                alt="" 
+                                className="w-full h-full object-cover" 
+                                onError={(e) => { 
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                  const parent = target.parentElement;
+                                  if (parent) {
+                                    parent.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-image-off"><path d="m21 21-6-6m-5.5-5.5-4-4"/><path d="M4 16.5V21h4.5l9.5-9.5-4.5-4.5L4 16.5Z"/><path d="M17.5 6.5 13 2"/></svg>';
+                                  }
+                                }} 
+                              />
+                            </div>
                           ) : col.type === 'switch' ? (
                             <Badge variant={item[col.key] ? 'default' : 'secondary'}>
                               {item[col.key] ? 'فعال' : 'معطل'}
@@ -322,7 +361,14 @@ function ItemForm({ fields, initialData, onSave, loading }: { fields: FieldConfi
   const [data, setData] = useState<Record<string, any>>({ ...initialData });
 
   const updateField = (key: string, value: any) => {
-    setData((prev) => ({ ...prev, ...value }));
+    setData((prev) => {
+      // إذا كان المفتاح يحتوي على كائنة (مثل في الحالة ثنائية اللغة)
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        return { ...prev, ...value };
+      }
+      // إذا كان قيمة عادية
+      return { ...prev, [key]: value };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -341,12 +387,17 @@ function ItemForm({ fields, initialData, onSave, loading }: { fields: FieldConfi
               label={field.label}
             />
           ) : field.type === 'switch' ? (
-            <div className="flex items-center gap-3">
-              <Switch
-                checked={data[field.key] ?? false}
-                onCheckedChange={(v) => updateField(field.key, v)}
-              />
+            <div className="space-y-2">
               <Label>{field.label}</Label>
+              <div className="flex items-center gap-3">
+                <Switch
+                  checked={data[field.key] ?? false}
+                  onCheckedChange={(v) => updateField(field.key, v)}
+                />
+                <span className="text-sm text-gray-600">
+                  {data[field.key] ? 'فعال' : 'معطل'}
+                </span>
+              </div>
             </div>
           ) : field.type === 'select' ? (
             <div className="space-y-1">
@@ -377,7 +428,7 @@ function ItemForm({ fields, initialData, onSave, loading }: { fields: FieldConfi
               />
             </div>
           ) : field.key.endsWith('Ar') ? (
-            <DualField field={field} value={data} onChange={(v) => updateField(field.key, null, v)} />
+            <DualField field={field} value={data} onChange={(v) => updateField(field.key, v)} />
           ) : field.key.endsWith('En') ? null : (
             <div className="space-y-1">
               <Label>{field.label}</Label>

@@ -136,6 +136,26 @@ model Testimonial {
   updatedAt DateTime @updatedAt
 }
 
+// ============ BEFORE & AFTER CASES ============
+model BeforeAfterCase {
+  id          String   @id @default(cuid())
+  doctorNameAr String
+  doctorNameEn String  @default("")
+  treatmentAr String
+  treatmentEn String  @default("")
+  categoryAr  String   @default("")
+  categoryEn  String   @default("")
+  branchAr    String   @default("")
+  branchEn    String   @default("")
+  beforeImage String
+  afterImage  String
+  dividerPosition Int  @default(50)
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 // ============ INSURANCE COMPANIES ============
 model InsuranceCompany {
   id        String   @id @default(cuid())
@@ -201,7 +221,10 @@ model Booking {
   date        String   @default("")
   time        String   @default("")
   notes       String   @default("")
-  status      String   @default("pending") // pending, confirmed, cancelled, completed
+  amount      Float    @default(0)
+  paymentStatus String @default("pending")
+  stripeSessionId String? @unique
+  status      String   @default("pending")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -277,4 +300,52 @@ model WorkingHour {
   to    String @default("")
   order Int    @default(0)
   isActive Boolean @default(true)
+}
+
+// ============ ORDERS ============
+model Order {
+  id              String   @id @default(cuid())
+  name            String
+  email           String
+  phone           String
+  total           Float
+  subtotal        Float
+  tax             Float
+  status          String   @default("pending")
+  paymentStatus   String   @default("pending")
+  paymentIntentId String?
+  stripeSessionId String?  @unique
+  items           OrderItem[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  serviceId String?
+  nameAr    String
+  nameEn    String  @default("")
+  price     Float
+  quantity  Int     @default(1)
+  image     String  @default("")
+  createdAt DateTime @default(now())
+}
+
+// ============ PAYMENTS ============
+model Payment {
+  id                String   @id @default(cuid())
+  amount            Float
+  currency          String   @default("SAR")
+  status            String   @default("pending")
+  paymentIntentId   String?  @unique
+  stripeSessionId   String?  @unique
+  customerEmail     String?
+  customerName      String?
+  orderId           String?
+  bookingId         String?
+  paymentMethod     String   @default("stripe")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }

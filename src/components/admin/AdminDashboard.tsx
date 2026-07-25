@@ -11,6 +11,7 @@ import CategoryManager from './CategoryManager';
 import DoctorManager from './DoctorManager';
 import ArticleManager from './ArticleManager';
 import TestimonialManager from './TestimonialManager';
+import BeforeAfterManager from './BeforeAfterManager';
 import InsuranceManager from './InsuranceManager';
 import VideoManager from './VideoManager';
 import PromoPopupManager from './PromoPopupManager';
@@ -20,6 +21,7 @@ import NavManager from './NavManager';
 import SocialLinksManager from './SocialLinksManager';
 import WorkingHoursManager from './WorkingHoursManager';
 import BookingManager from './BookingManager';
+import OrderManager from './OrderManager';
 import MessageManager from './MessageManager';
 import JobApplicationManager from './JobApplicationManager';
 import RatingManager from './RatingManager';
@@ -32,6 +34,7 @@ const adminPages: Record<string, React.ComponentType> = {
   'doctors': DoctorManager,
   'articles': ArticleManager,
   'testimonials': TestimonialManager,
+  'before-after': BeforeAfterManager,
   'insurance': InsuranceManager,
   'videos': VideoManager,
   'promo-popup': PromoPopupManager,
@@ -41,6 +44,7 @@ const adminPages: Record<string, React.ComponentType> = {
   'social-links': SocialLinksManager,
   'working-hours': WorkingHoursManager,
   'bookings': BookingManager,
+  'orders': OrderManager,
   'messages': MessageManager,
   'job-applications': JobApplicationManager,
   'ratings': RatingManager,

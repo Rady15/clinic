@@ -1,10 +1,22 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MessageCircle, Instagram, Youtube, X, Cookie } from 'lucide-react';
+import { MessageCircle, Instagram, Youtube, X, Cookie, Phone, Twitter, Music, Ghost } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
+
+const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
+  whatsapp: Phone,
+  instagram: Instagram,
+  youtube: Youtube,
+  twitter: Twitter,
+  snapchat: Ghost,
+  tiktok: Music,
+  phone: Phone,
+  play: Youtube,
+  message: MessageCircle,
+};
 
 interface SocialLinkData {
   id: string;
@@ -35,9 +47,8 @@ export function WhatsAppFAB() {
   useEffect(() => {
     fetch('/api/public/settings')
       .then(r => r.json())
-      .then((data: { key: string; value: string }[]) => {
-        const w = data.find((s: { key: string }) => s.key === 'whatsapp');
-        if (w) setWhatsapp(w.value);
+      .then((data: Record<string, string>) => {
+        if (data.whatsapp) setWhatsapp(data.whatsapp);
       })
       .catch(() => {});
   }, []);
@@ -86,7 +97,9 @@ export function SocialSidebar() {
 
   return (
     <div className="fixed left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 p-2">
-      {socialLinks.map(link => (
+      {socialLinks.map(link => {
+        const IconComponent = iconMap[link.platform] || iconMap[link.icon] || MessageCircle;
+        return (
         <a
           key={link.id}
           href={link.url}
@@ -94,23 +107,27 @@ export function SocialSidebar() {
           rel="noopener noreferrer"
           className={`w-10 h-10 bg-[#2C3E50] rounded-l-lg flex items-center justify-center text-white ${colorMap[link.platform] || 'hover:bg-[#6DB3D7]'} transition-all hover:w-12`}
         >
-          <MessageCircle className="w-4 h-4" />
+          <IconComponent className="w-4 h-4" />
         </a>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
 export function CookieBar() {
   const { locale } = useLanguageStore();
-  const [visible, setVisible] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return !localStorage.getItem('cookie-dismissed');
-    }
-    return true;
-  });
+  const [visible, setVisible] = useState(true);
+  const [mounted, setMounted] = useState(false);
 
-  if (!visible) return null;
+  useEffect(() => {
+    setMounted(true);
+    if (localStorage.getItem('cookie-dismissed')) {
+      setVisible(false);
+    }
+  }, []);
+
+  if (!mounted || !visible) return null;
 
   const handleDismiss = () => {
     localStorage.setItem('cookie-dismissed', 'true');
