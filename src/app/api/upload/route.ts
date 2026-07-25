@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
 import { cookies } from 'next/headers';
 
 const ADMIN_TOKEN = 'clinic-admin-token-2024';
@@ -27,11 +26,18 @@ export async function POST(request: NextRequest) {
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const pathname = `${folder}/${filename}`;
 
-    const blob = await put(pathname, file, {
-      access: 'public',
-    });
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      const { put } = await import('@vercel/blob');
+      const blob = await put(pathname, file, { access: 'public' });
+      return NextResponse.json({ url: blob.url, filename });
+    }
 
-    return NextResponse.json({ url: blob.url, filename });
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const mimeType = file.type || `image/${ext === 'jpg' ? 'jpeg' : ext}`;
+    const base64 = buffer.toString('base64');
+    const url = `data:${mimeType};base64,${base64}`;
+
+    return NextResponse.json({ url, filename });
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });

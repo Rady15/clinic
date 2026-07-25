@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-04-30.basil',
-});
-
 export async function POST(request: NextRequest) {
   try {
+    const key = process.env.STRIPE_SECRET_KEY;
+    if (!key || key === 'sk_test_your_stripe_secret_key' || !key.startsWith('sk_')) {
+      return NextResponse.json({ error: 'Stripe is not configured. Please add STRIPE_SECRET_KEY to environment variables.' }, { status: 503 });
+    }
+
+    const stripe = new Stripe(key, { apiVersion: '2025-04-30.basil' });
+
     const { name, phone, email, department, doctorId, date, time, notes, amount } = await request.json();
 
     if (!name || !phone || !department) {
@@ -47,6 +50,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ url: session.url, sessionId: session.id });
   } catch (e) {
     console.error('Booking checkout error:', e);
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+    const message = e instanceof Error ? e.message : 'Failed to create checkout session';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
