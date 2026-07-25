@@ -58,7 +58,7 @@ function SuccessContent() {
         {order && (
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-sm text-right">
             <p><strong>{locale === 'en' ? 'Order ID' : 'رقم الطلب'}:</strong> {order.id}</p>
-            <p><strong>{locale === 'en' ? 'Total' : 'الإجمالي'}:</strong> {order.total?.toLocaleString()} {locale === 'en' ? 'SAR' : 'ر.س'}</p>
+            <p><strong>{locale === 'en' ? 'Total' : 'الإجمالي'}:</strong> {order.total?.toLocaleString()} ﷼</p>
           </div>
         )}
         <Button onClick={() => setCurrentPage('home')} className="bg-[#6DB3D7] hover:bg-[#5DADE2] text-white px-8 rounded-xl">

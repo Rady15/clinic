@@ -294,7 +294,7 @@ export default function CrudManager({ title, apiPath, columns, fields, transform
                               {item[col.key] ? 'فعال' : 'معطل'}
                             </Badge>
                           ) : col.type === 'price' ? (
-                            <span className="font-medium">{item[col.key]} ر.س</span>
+                            <span className="font-medium">{item[col.key]} ﷼</span>
                           ) : col.type === 'badge' ? (
                             <Badge variant="outline">{item[col.key]}</Badge>
                           ) : (

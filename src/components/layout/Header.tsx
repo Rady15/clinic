@@ -31,6 +31,7 @@ interface SearchResult {
 export default function Header() {
   const { currentPage, setCurrentPage, isMobileMenuOpen, setMobileMenuOpen, isSearchOpen, setSearchOpen, isLoginOpen, setLoginOpen } = useNavigationStore();
   const itemCount = useCartStore(s => s.getItemCount());
+  const cartTotal = useCartStore(s => s.getTotal());
   const { locale, setLocale } = useLanguageStore();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [navItems, setNavItems] = useState<NavItemData[]>([]);
@@ -219,12 +220,17 @@ export default function Header() {
               </button>
               <button
                 onClick={() => setCurrentPage('cart')}
-                className="p-2 rounded-full hover:bg-[#EBF5FB] text-[#333] hover:text-[#6DB3D7] transition-colors relative"
+                className="flex items-center gap-1.5 p-2 rounded-full hover:bg-[#EBF5FB] text-[#333] hover:text-[#6DB3D7] transition-colors relative"
               >
                 <ShoppingCart className="w-5 h-5" />
                 {itemCount > 0 && (
                   <span className="absolute -top-1 -left-1 bg-[#6DB3D7] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                     {itemCount}
+                  </span>
+                )}
+                {cartTotal > 0 && (
+                  <span className="hidden sm:flex items-center text-xs font-bold text-[#6DB3D7]">
+                    {cartTotal.toLocaleString()} ﷼
                   </span>
                 )}
               </button>

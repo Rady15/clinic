@@ -75,7 +75,7 @@ const translations: Record<string, Record<Locale, string>> = {
   'services.all': { ar: 'الكل', en: 'All' },
   'services.sortBy': { ar: 'ترتيب حسب', en: 'Sort By' },
   'services.priceRange': { ar: 'نطاق السعر', en: 'Price Range' },
-  'services.sar': { ar: 'ر.س', en: 'SAR' },
+  'services.sar': { ar: '﷼', en: 'SAR' },
 
   // Doctors page
   'doctors.title': { ar: 'الأطباء', en: 'Doctors' },

@@ -99,7 +99,7 @@ export default function OrderManager() {
                     <td className="p-3">{order.name}</td>
                     <td className="p-3">{order.phone}</td>
                     <td className="p-3 text-gray-500">{order.email || '-'}</td>
-                    <td className="p-3">{order.total.toLocaleString()} ر.س</td>
+                    <td className="p-3">{order.total.toLocaleString()} ﷼</td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${paymentColors[order.paymentStatus] || ''}`}>
                         {order.paymentStatus === 'paid' ? 'مدفوع' : order.paymentStatus === 'pending' ? 'قيد الانتظار' : 'فشل'}
