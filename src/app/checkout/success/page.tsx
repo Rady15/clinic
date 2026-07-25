@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
 
-export default function CheckoutSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const sessionId = searchParams.get('session_id');
   const { setCurrentPage } = useNavigationStore();
@@ -66,5 +66,19 @@ export default function CheckoutSuccessPage() {
         </Button>
       </div>
     </main>
+  );
+}
+
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={
+      <main className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-[#6DB3D7] mx-auto mb-4" />
+        </div>
+      </main>
+    }>
+      <SuccessContent />
+    </Suspense>
   );
 }
