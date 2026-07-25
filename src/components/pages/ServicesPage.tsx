@@ -6,6 +6,7 @@ import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 import { ShoppingCart, SlidersHorizontal, X, Stethoscope, Heart, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -322,7 +323,7 @@ export default function ServicesPage() {
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-[#333] line-clamp-1">{locale === 'en' ? s.nameEn : s.nameAr}</p>
-                          <p className="text-sm font-bold text-[#6DB3D7]">{s.price.toLocaleString()} {t('services.sar', locale)}</p>
+                          <p className="text-sm font-bold text-[#6DB3D7]">{s.price.toLocaleString()} <CurrencySymbol /></p>
                         </div>
                       </div>
                     ))}
@@ -441,9 +442,9 @@ function ProductCard({ service, index, locale, addItem, t }: {
         </h4>
         <div className="flex items-center gap-3">
           {service.originalPrice && service.originalPrice > service.price && (
-            <span className="text-sm text-[#7F8C8D] line-through">{service.originalPrice.toLocaleString()} {t('services.sar', locale)}</span>
+            <span className="text-sm text-[#7F8C8D] line-through">{service.originalPrice.toLocaleString()} <CurrencySymbol /></span>
           )}
-          <span className="text-xl font-bold text-[#6DB3D7]">{service.price.toLocaleString()} {t('services.sar', locale)}</span>
+          <span className="text-xl font-bold text-[#6DB3D7]">{service.price.toLocaleString()} <CurrencySymbol /></span>
         </div>
       </div>
     </motion.div>

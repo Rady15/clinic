@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -294,7 +295,7 @@ export default function CrudManager({ title, apiPath, columns, fields, transform
                               {item[col.key] ? 'فعال' : 'معطل'}
                             </Badge>
                           ) : col.type === 'price' ? (
-                            <span className="font-medium">{item[col.key]} ﷼</span>
+                            <span className="font-medium">{item[col.key]} <CurrencySymbol className="h-4 w-auto inline-block" /></span>
                           ) : col.type === 'badge' ? (
                             <Badge variant="outline">{item[col.key]}</Badge>
                           ) : (

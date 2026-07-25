@@ -6,6 +6,7 @@ import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 import {
   Stethoscope, ChevronLeft, ChevronRight, Star, Clock, ArrowLeft, Play, Shield, ArrowRight,
   ShoppingCart, Heart, Sparkles
@@ -677,11 +678,11 @@ function PremiumServiceCard({ service, index, locale, addItem, t }: {
         <div className="flex items-center gap-3">
           {service.originalPrice && service.originalPrice > service.price && (
             <span className="text-sm text-[#7F8C8D] line-through">
-              {service.originalPrice.toLocaleString()} {t('services.sar', locale)}
+              {service.originalPrice.toLocaleString()} <CurrencySymbol />
             </span>
           )}
           <span className="text-xl font-bold text-[#6DB3D7]">
-            {service.price.toLocaleString()} {t('services.sar', locale)}
+            {service.price.toLocaleString()} <CurrencySymbol />
           </span>
         </div>
       </div>

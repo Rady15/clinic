@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { RefreshCw } from 'lucide-react';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 
 interface OrderData {
   id: string;
@@ -99,7 +100,7 @@ export default function OrderManager() {
                     <td className="p-3">{order.name}</td>
                     <td className="p-3">{order.phone}</td>
                     <td className="p-3 text-gray-500">{order.email || '-'}</td>
-                    <td className="p-3">{order.total.toLocaleString()} ﷼</td>
+                    <td className="p-3">{order.total.toLocaleString()} <CurrencySymbol className="h-4 w-auto inline-block" /></td>
                     <td className="p-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${paymentColors[order.paymentStatus] || ''}`}>
                         {order.paymentStatus === 'paid' ? 'مدفوع' : order.paymentStatus === 'pending' ? 'قيد الانتظار' : 'فشل'}

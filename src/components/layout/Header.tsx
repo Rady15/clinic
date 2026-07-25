@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
 import {
@@ -230,7 +231,7 @@ export default function Header() {
                 )}
                 {cartTotal > 0 && (
                   <span className="hidden sm:flex items-center text-xs font-bold text-[#6DB3D7]">
-                    {cartTotal.toLocaleString()} ﷼
+                    {cartTotal.toLocaleString()} <CurrencySymbol className="h-3.5 w-auto inline-block" />
                   </span>
                 )}
               </button>

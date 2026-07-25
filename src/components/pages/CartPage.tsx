@@ -5,6 +5,7 @@ import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
@@ -96,9 +97,9 @@ export default function CartPage() {
                   <p className="text-xs text-[#7F8C8D] mt-1">{item.category}</p>
                   <div className="flex items-center gap-2 mt-2">
                     {item.originalPrice && (
-                      <span className="text-xs text-[#7F8C8D] line-through">{item.originalPrice.toLocaleString()} {t('services.sar', locale)}</span>
+                      <span className="text-xs text-[#7F8C8D] line-through">{item.originalPrice.toLocaleString()} <CurrencySymbol /></span>
                     )}
-                    <span className="font-bold text-[#6DB3D7]">{item.price.toLocaleString()} {t('services.sar', locale)}</span>
+                    <span className="font-bold text-[#6DB3D7]">{item.price.toLocaleString()} <CurrencySymbol /></span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -127,15 +128,15 @@ export default function CartPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-sm">
                 <span className="text-[#7F8C8D]">{locale === 'en' ? 'Subtotal' : 'المجموع الفرعي'}</span>
-                <span className="font-medium">{total.toLocaleString()} {t('services.sar', locale)}</span>
+                <span className="font-medium">{total.toLocaleString()} <CurrencySymbol /></span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-[#7F8C8D]">{locale === 'en' ? 'Tax (15%)' : 'الضريبة (15%)'}</span>
-                <span className="font-medium">{(total * 0.15).toFixed(0)} {t('services.sar', locale)}</span>
+                <span className="font-medium">{(total * 0.15).toFixed(0)} <CurrencySymbol /></span>
               </div>
               <div className="border-t border-gray-100 pt-3 flex justify-between">
                 <span className="font-bold text-[#2C3E50]">{locale === 'en' ? 'Total' : 'الإجمالي'}</span>
-                <span className="font-bold text-[#6DB3D7] text-xl">{(total * 1.15).toFixed(0)} {t('services.sar', locale)}</span>
+                <span className="font-bold text-[#6DB3D7] text-xl">{(total * 1.15).toFixed(0)} <CurrencySymbol /></span>
               </div>
             </div>
             <Button

@@ -6,6 +6,7 @@ import { Check, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
+import CurrencySymbol from '@/components/ui/currency-symbol';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -58,7 +59,7 @@ function SuccessContent() {
         {order && (
           <div className="bg-gray-50 rounded-xl p-4 mb-6 text-sm text-right">
             <p><strong>{locale === 'en' ? 'Order ID' : 'رقم الطلب'}:</strong> {order.id}</p>
-            <p><strong>{locale === 'en' ? 'Total' : 'الإجمالي'}:</strong> {order.total?.toLocaleString()} ﷼</p>
+            <p><strong>{locale === 'en' ? 'Total' : 'الإجمالي'}:</strong> {order.total?.toLocaleString()} <CurrencySymbol className="h-4 w-auto inline-block" /></p>
           </div>
         )}
         <Button onClick={() => setCurrentPage('home')} className="bg-[#6DB3D7] hover:bg-[#5DADE2] text-white px-8 rounded-xl">
