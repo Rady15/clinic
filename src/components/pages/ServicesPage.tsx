@@ -405,7 +405,7 @@ function ProductCard({ service, index, locale, addItem, t }: {
             onClick={(e) => {
               e.stopPropagation();
               addItem({
-                id: parseInt(service.id) || 0,
+                id: service.id,
                 name: locale === 'en' ? service.nameEn : service.nameAr,
                 price: service.price,
                 originalPrice: service.originalPrice || undefined,
