@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     const filename = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${ext}`;
     const pathname = `${folder}/${filename}`;
 
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+    if (blobToken && blobToken.startsWith('vercel_blob_') && !blobToken.includes('here')) {
       const { put } = await import('@vercel/blob');
       const blob = await put(pathname, file, { access: 'public' });
       return NextResponse.json({ url: blob.url, filename });
