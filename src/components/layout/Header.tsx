@@ -7,12 +7,12 @@ import CurrencySymbol from '@/components/ui/currency-symbol';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
 import {
-  Search, ShoppingCart, User, Menu, X, Phone, ChevronDown, Globe, Settings
+  Search, ShoppingCart, User, Menu, X, Phone, ChevronDown, Globe, LogOut
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { signIn } from 'next-auth/react';
+import { signIn, signOut, useSession } from 'next-auth/react';
 
 interface NavItemData {
   id: string;
@@ -35,6 +35,7 @@ export default function Header() {
   const itemCount = useCartStore(s => s.getItemCount());
   const cartTotal = useCartStore(s => s.getTotal());
   const { locale, setLocale } = useLanguageStore();
+  const { data: session } = useSession();
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [navItems, setNavItems] = useState<NavItemData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +44,10 @@ export default function Header() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searching, setSearching] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  const isLoggedIn = !!session;
+  const isAdmin = userRole === 'admin';
 
   useEffect(() => {
     fetch('/api/public/nav-items')
@@ -85,6 +90,18 @@ export default function Header() {
       .finally(() => { setLoading(false); });
   }, []);
 
+  // Fetch user role when logged in
+  useEffect(() => {
+    if (session?.user?.email) {
+      fetch(`/api/auth/me?email=${encodeURIComponent(session.user.email)}`)
+        .then(r => r.json())
+        .then(data => { if (data.role) setUserRole(data.role); })
+        .catch(() => {});
+    } else {
+      setUserRole(null);
+    }
+  }, [session]);
+
   const handleNavClick = useCallback((item: NavItemData) => {
     let params: Record<string, string> = {};
     try {
@@ -114,6 +131,20 @@ export default function Header() {
     }
     setSearching(false);
   }, []);
+
+  const handleLoginClick = () => {
+    if (isAdmin) {
+      setCurrentPage('admin');
+    } else {
+      setLoginOpen(true);
+    }
+  };
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    setUserRole(null);
+    setCurrentPage('home');
+  };
 
   if (loading) {
     return (
@@ -146,42 +177,31 @@ export default function Header() {
       </div>
 
       {/* Main Header */}
-      <header className="bg-white shadow-md sticky top-0 z-50">
+      <header className="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-20">
-            {/* Logo */}
+            {/* Logo Only */}
             <button
               onClick={() => setCurrentPage('home')}
-              className="flex items-center gap-3 shrink-0"
+              className="shrink-0"
             >
               {logoUrl ? (
-                <img src={logoUrl} alt="" className="w-12 h-12 object-contain" />
+                <img src={logoUrl} alt="Clinic 9" className="h-14 w-auto object-contain" />
               ) : (
-                <div className="w-12 h-12 bg-[#6DB3D7] rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold text-lg">C9</span>
+                <div className="h-14 w-14 bg-[#6DB3D7] rounded-full flex items-center justify-center">
+                  <span className="text-white font-bold text-xl">C9</span>
                 </div>
               )}
-              <div className="hidden sm:block">
-                <h1 className="text-xl font-bold text-[#2C3E50] leading-tight">
-                  {locale === 'en' ? 'Clinic 9' : 'العيادة التاسعة'}
-                </h1>
-                <p className="text-xs text-[#7F8C8D]">
-                  {locale === 'en' ? 'Specialized Medical Center' : 'مركز طبي متخصص'}
-                </p>
-              </div>
             </button>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden lg:flex items-center gap-1">
               {navItems.map((item) => {
                 const hasDropdown = item.children && item.children.length > 0;
                 const isOpen = openDropdown === item.id;
 
                 return (
-                  <div
-                    key={item.id}
-                    className="relative"
-                  >
+                  <div key={item.id} className="relative">
                     <button
                       onClick={() => hasDropdown ? setOpenDropdown(isOpen ? null : item.id) : handleNavClick(item)}
                       className={`px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1 whitespace-nowrap
@@ -190,7 +210,6 @@ export default function Header() {
                       {locale === 'en' ? item.labelEn : item.labelAr}
                       {hasDropdown && <ChevronDown className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />}
                     </button>
-                    {/* Dropdown */}
                     {hasDropdown && isOpen && (
                       <div
                         className="absolute top-full start-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 py-2 min-w-[200px] z-[60]"
@@ -242,21 +261,35 @@ export default function Header() {
               >
                 {t('header.bookNow', locale)}
               </button>
-              <button
-                onClick={() => setLoginOpen(true)}
-                className="hidden md:flex items-center gap-2 text-sm text-[#333] hover:text-[#6DB3D7] transition-colors"
-              >
-                <User className="w-5 h-5" />
-                <span>{t('header.login', locale)}</span>
-              </button>
-              {/* Admin link */}
-              <button
-                onClick={() => setCurrentPage('admin')}
-                className="p-2 rounded-full hover:bg-gray-100 text-[#7F8C8D] hover:text-[#333] transition-colors"
-                title="Admin"
-              >
-                <Settings className="w-4 h-4" />
-              </button>
+
+              {/* Login / User Menu */}
+              {isLoggedIn ? (
+                <div className="hidden md:flex items-center gap-2">
+                  {isAdmin && (
+                    <button
+                      onClick={() => setCurrentPage('admin')}
+                      className="flex items-center gap-2 bg-[#2C3E50] text-white px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#34495E] transition-colors"
+                    >
+                      {locale === 'en' ? 'Dashboard' : 'لوحة التحكم'}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 text-sm text-[#7F8C8D] hover:text-red-500 transition-colors p-2"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setLoginOpen(true)}
+                  className="hidden md:flex items-center gap-2 text-sm text-[#333] hover:text-[#6DB3D7] transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span>{t('header.login', locale)}</span>
+                </button>
+              )}
+
               <button
                 onClick={() => setMobileMenuOpen(true)}
                 className="lg:hidden p-2 rounded-full hover:bg-[#EBF5FB] text-[#333] transition-colors"
@@ -363,13 +396,33 @@ export default function Header() {
                   >
                     {t('header.bookNow', locale)}
                   </button>
-                  <button
-                    onClick={() => { setLoginOpen(true); setMobileMenuOpen(false); }}
-                    className="w-full flex items-center justify-center gap-2 text-[#333] py-3 rounded-lg border border-gray-200 hover:bg-[#EBF5FB] transition-colors"
-                  >
-                    <User className="w-5 h-5" />
-                    <span>{t('header.login', locale)}</span>
-                  </button>
+                  {isLoggedIn ? (
+                    <>
+                      {isAdmin && (
+                        <button
+                          onClick={() => { setCurrentPage('admin'); setMobileMenuOpen(false); }}
+                          className="w-full bg-[#2C3E50] text-white py-3 rounded-lg font-semibold hover:bg-[#34495E] transition-colors"
+                        >
+                          {locale === 'en' ? 'Dashboard' : 'لوحة التحكم'}
+                        </button>
+                      )}
+                      <button
+                        onClick={async () => { await handleLogout(); setMobileMenuOpen(false); }}
+                        className="w-full flex items-center justify-center gap-2 text-red-500 py-3 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span>{locale === 'en' ? 'Logout' : 'تسجيل خروج'}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() => { setLoginOpen(true); setMobileMenuOpen(false); }}
+                      className="w-full flex items-center justify-center gap-2 text-[#333] py-3 rounded-lg border border-gray-200 hover:bg-[#EBF5FB] transition-colors"
+                    >
+                      <User className="w-5 h-5" />
+                      <span>{t('header.login', locale)}</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </motion.div>
@@ -428,8 +481,20 @@ function HeaderLoginForm({ onClose }: { onClose: () => void }) {
     if (res?.error) {
       setError(locale === 'en' ? 'Invalid email or password' : 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
     } else {
-      onClose();
-      setCurrentPage('home');
+      // Check user role and redirect
+      try {
+        const meRes = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
+        const meData = await meRes.json();
+        onClose();
+        if (meData.role === 'admin') {
+          setCurrentPage('admin');
+        } else {
+          setCurrentPage('home');
+        }
+      } catch {
+        onClose();
+        setCurrentPage('home');
+      }
     }
   };
 
