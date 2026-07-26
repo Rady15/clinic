@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useMotionValue, useSpring, useTransform, MotionProps } from 'framer-motion';
-import { ReactNode, useRef, MouseEvent } from 'react';
+import React, { ReactNode, useRef, MouseEvent } from 'react';
 
 /* ─── FadeIn ─── */
 interface FadeInProps {
