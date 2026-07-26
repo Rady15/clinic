@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import DirProvider from "@/components/DirProvider";
+import AuthProvider from "@/components/AuthProvider";
 
 export const metadata: Metadata = {
   title: "العيادة التاسعة | مركز طبي متخصص",
@@ -24,10 +25,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
       </head>
       <body className="antialiased bg-white text-[#333333] font-sans">
-        <DirProvider>
-          {children}
-          <Toaster />
-        </DirProvider>
+        <AuthProvider>
+          <DirProvider>
+            {children}
+            <Toaster />
+          </DirProvider>
+        </AuthProvider>
       </body>
     </html>
   );

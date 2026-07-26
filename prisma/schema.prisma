@@ -17,6 +17,20 @@ model Admin {
   updatedAt DateTime @updatedAt
 }
 
+// ============ USERS ============
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // null for Google-only users
+  image         String?
+  role          String    @default("user") // user, admin
+  phone         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
 // ============ SETTINGS ============
 model SiteSetting {
   id    String @id @default(cuid())
