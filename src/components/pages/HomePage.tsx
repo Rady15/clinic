@@ -25,6 +25,7 @@ interface BannerData {
   ctaTextAr: string;
   ctaTextEn: string;
   ctaLink: string;
+  ctaButtons: { textAr: string; textEn: string; link: string; icon: string }[] | null;
   image: string;
   bgColor: string;
   order: number;
@@ -237,9 +238,27 @@ export default function HomePage() {
                     <p className="text-white/80 text-lg mb-2">{locale === 'en' ? banners[currentSlide]?.subtitleEn : banners[currentSlide]?.subtitleAr}</p>
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">{locale === 'en' ? banners[currentSlide]?.titleEn : banners[currentSlide]?.titleAr}</h2>
                     <p className="text-white/90 text-base md:text-lg mb-6">{locale === 'en' ? banners[currentSlide]?.descriptionEn : banners[currentSlide]?.descriptionAr}</p>
-                    <button onClick={() => setCurrentPage('booking')} className="bg-white text-[#6DB3D7] px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">
-                      {locale === 'en' ? banners[currentSlide]?.ctaTextEn : banners[currentSlide]?.ctaTextAr || t('booking.submit', locale)}
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      {banners[currentSlide]?.ctaTextAr && (
+                        <button onClick={() => {
+                          const link = banners[currentSlide]?.ctaLink;
+                          if (link?.startsWith('http')) window.open(link, '_blank');
+                          else if (link) setCurrentPage(link as any);
+                          else setCurrentPage('booking');
+                        }} className="bg-white text-[#6DB3D7] px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors flex items-center gap-2">
+                          {locale === 'en' ? banners[currentSlide]?.ctaTextEn : banners[currentSlide]?.ctaTextAr}
+                        </button>
+                      )}
+                      {banners[currentSlide]?.ctaButtons && Array.isArray(banners[currentSlide].ctaButtons) && banners[currentSlide].ctaButtons!.map((btn, idx) => (
+                        <button key={idx} onClick={() => {
+                          if (btn.link?.startsWith('http')) window.open(btn.link, '_blank');
+                          else if (btn.link) setCurrentPage(btn.link as any);
+                        }} className="bg-white/20 backdrop-blur-sm text-white border border-white/30 px-6 py-3 rounded-lg font-bold hover:bg-white/30 transition-colors flex items-center gap-2">
+                          {btn.icon && <img src={btn.icon} alt="" className="w-5 h-5 object-contain" />}
+                          {locale === 'en' ? btn.textEn : btn.textAr}
+                        </button>
+                      ))}
+                    </div>
                   </motion.div>
                 </div>
               </div>

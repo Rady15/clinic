@@ -39,6 +39,7 @@ model Banner {
   ctaTextAr   String   @default("")
   ctaTextEn   String   @default("")
   ctaLink     String   @default("")
+  ctaButtons  Json?    // [{ textAr, textEn, link, icon }]
   image       String   @default("")
   bgColor     String   @default("#6DB3D7")
   order       Int      @default(0)
