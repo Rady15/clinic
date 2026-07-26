@@ -29,13 +29,16 @@ const steps = [
 ];
 
 export default function BookingPage() {
-  const { setCurrentPage } = useNavigationStore();
+  const { setCurrentPage, pageParams } = useNavigationStore();
   const { locale } = useLanguageStore();
   const { data: session } = useSession();
-  const [step, setStep] = useState(1);
-  const [selectedDept, setSelectedDept] = useState('');
-  const [selectedDoctor, setSelectedDoctor] = useState('');
-  const [selectedDoctorId, setSelectedDoctorId] = useState('');
+  const preDoctorId = pageParams?.doctorId || '';
+  const preDoctorName = pageParams?.doctorName || '';
+  const preDepartment = pageParams?.department || '';
+  const [step, setStep] = useState(preDoctorId ? 2 : 1);
+  const [selectedDept, setSelectedDept] = useState(preDepartment);
+  const [selectedDoctor, setSelectedDoctor] = useState(preDoctorName);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(preDoctorId);
   const [form, setForm] = useState({ name: '', phone: '', email: '', date: '', time: '', notes: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);

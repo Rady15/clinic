@@ -537,7 +537,7 @@ export default function HomePage() {
                         )}
                         <h4 className="font-bold text-[#333] text-sm mb-1">{locale === 'en' ? doctor.nameEn : doctor.nameAr}</h4>
                         <p className="text-xs text-[#7F8C8D] line-clamp-2 leading-relaxed mb-3">{locale === 'en' ? doctor.specialtyEn : doctor.specialtyAr}</p>
-                        <button onClick={() => setCurrentPage('booking')} className="bg-[#6DB3D7] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:bg-[#5DADE2] transition-colors">
+                        <button onClick={() => setCurrentPage('booking', { doctorId: doctor.id, doctorName: locale === 'en' ? doctor.nameEn : doctor.nameAr, department: locale === 'en' ? doctor.departmentEn : doctor.departmentAr })} className="bg-[#6DB3D7] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:bg-[#5DADE2] transition-colors">
                           {t('home.bookAppointment', locale)}
                         </button>
                       </TiltCard>

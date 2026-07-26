@@ -149,7 +149,7 @@ export default function DoctorsPage() {
                 <p className="text-sm text-[#6DB3D7] font-medium mb-2">{locale === 'en' ? doctor.specialtyEn : doctor.specialtyAr}</p>
                 <p className="text-xs text-[#7F8C8D] mb-4 line-clamp-2 leading-relaxed">{locale === 'en' ? doctor.experienceEn : doctor.experienceAr}</p>
                 <button
-                  onClick={() => setCurrentPage('booking')}
+                  onClick={() => setCurrentPage('booking', { doctorId: doctor.id, doctorName: locale === 'en' ? doctor.nameEn : doctor.nameAr, department: locale === 'en' ? doctor.departmentEn : doctor.departmentAr })}
                   className="w-full bg-[#6DB3D7] text-white py-2.5 rounded-lg font-semibold text-sm hover:bg-[#5DADE2] transition-colors"
                 >
                   {t('home.bookAppointment', locale)}
