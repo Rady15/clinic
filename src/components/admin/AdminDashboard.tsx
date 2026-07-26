@@ -52,14 +52,23 @@ const adminPages: Record<string, React.ComponentType> = {
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPageState] = useState('dashboard');
   const [checking, setChecking] = useState(true);
+
+  const setCurrentPage = (page: string) => {
+    setCurrentPageState(page);
+    localStorage.setItem('admin_page', page);
+  };
   const { toast } = useToast();
 
   useEffect(() => {
     const localAuth = localStorage.getItem('admin_auth');
     if (localAuth === 'true') {
       setIsAuthenticated(true);
+      const savedPage = localStorage.getItem('admin_page');
+      if (savedPage && adminPages[savedPage]) {
+        setCurrentPageState(savedPage);
+      }
     }
     setChecking(false);
   }, []);
