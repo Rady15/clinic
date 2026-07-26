@@ -15,6 +15,26 @@ const providers: NextAuthOptions['providers'] = [
       if (!credentials?.email || !credentials?.password) return null;
 
       const identifier = credentials.email;
+
+      // Check Admin table (plain text password)
+      const admin = await db.admin.findFirst({
+        where: { OR: [{ username: identifier }, { name: identifier }] },
+      });
+      if (admin && credentials.password === admin.password) {
+        // Create or find a User record for this admin so NextAuth session works
+        let user = await db.user.findFirst({ where: { name: admin.name } });
+        if (!user) {
+          const bcryptHash = await bcrypt.hash(admin.password, 10);
+          user = await db.user.create({
+            data: { name: admin.name, email: `${admin.username}@admin.local`, password: bcryptHash, role: 'admin' },
+          });
+        } else if (user.role !== 'admin') {
+          user = await db.user.update({ where: { id: user.id }, data: { role: 'admin' } });
+        }
+        return { id: user.id, name: user.name, email: user.email, image: user.image };
+      }
+
+      // Check User table (bcrypt password)
       const user = await db.user.findFirst({
         where: { OR: [{ email: identifier }, { name: identifier }] },
       });
