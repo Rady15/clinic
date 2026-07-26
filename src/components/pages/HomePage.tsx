@@ -439,8 +439,15 @@ export default function HomePage() {
         <ScaleIn>
           <section className="py-12">
             <div className="max-w-7xl mx-auto px-4">
-              <div className="rounded-2xl p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-6" style={{ background: `linear-gradient(to right, ${ctaBanner.bgColor}, ${ctaBanner.bgColor}cc)` }}>
-                <div className="flex gap-3 shrink-0">
+              <div className="relative rounded-2xl p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-6 overflow-hidden"
+                   style={{ background: ctaBanner.image ? undefined : `linear-gradient(to right, ${ctaBanner.bgColor}, ${ctaBanner.bgColor}cc)` }}>
+                {ctaBanner.image && (
+                  <>
+                    <img src={ctaBanner.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to right, ${ctaBanner.bgColor}ee, ${ctaBanner.bgColor}99)` }} />
+                  </>
+                )}
+                <div className="flex gap-3 shrink-0 relative z-10">
                   {ctaBanner.buttons.map((btn: any, idx: number) => (
                     <MagneticButton key={idx}>
                       <button
@@ -453,7 +460,7 @@ export default function HomePage() {
                     </MagneticButton>
                   ))}
                 </div>
-                <div className="text-center md:text-right">
+                <div className="text-center md:text-right relative z-10">
                   <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{locale === 'ar' ? ctaBanner.titleAr : ctaBanner.titleEn}</h3>
                   <p className="text-white/80">{locale === 'ar' ? ctaBanner.descriptionAr : ctaBanner.descriptionEn}</p>
                 </div>

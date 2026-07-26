@@ -7,6 +7,7 @@ import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
 import { Clock, User, ArrowLeft, Stethoscope } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import HeroSection from '@/components/ui/HeroSection';
 
 interface ArticleData {
   id: string;
@@ -102,16 +103,7 @@ export default function NewsPage() {
 
   return (
     <main>
-      <section className="bg-gradient-to-l from-[#6DB3D7] to-[#5DADE2] py-16">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-bold text-white mb-4">{t('nav.news', locale)}</motion.h1>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center justify-center gap-2 text-white/80">
-            <button onClick={() => setCurrentPage('home')} className="hover:text-white">{t('nav.home', locale)}</button>
-            <span>/</span>
-            <span>{t('nav.news', locale)}</span>
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection titleKey="nav.news" pageKey="news" />
 
       <div className="max-w-5xl mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

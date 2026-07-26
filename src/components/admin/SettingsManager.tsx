@@ -77,7 +77,7 @@ export default function SettingsManager() {
     general: 'الإعدادات العامة',
     contact: 'معلومات الاتصال',
     social: 'التواصل الاجتماعي',
-    appearance: 'المظهر',
+    appearance: 'المظهر وصور الصفحات',
   };
 
   return (

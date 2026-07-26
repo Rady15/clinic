@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import HeroSection from '@/components/ui/HeroSection';
 
 interface WorkingHourData {
   id: string;
@@ -114,17 +115,7 @@ export default function ContactPage() {
 
   return (
     <main>
-      {/* Hero */}
-      <section className="bg-gradient-to-l from-[#6DB3D7] to-[#5DADE2] py-16">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-4xl font-bold text-white mb-4">{t('contact.title', locale)}</motion.h1>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-center justify-center gap-2 text-white/80">
-            <button onClick={() => setCurrentPage('home')} className="hover:text-white">{t('nav.home', locale)}</button>
-            <span>/</span>
-            <span>{t('contact.title', locale)}</span>
-          </motion.div>
-        </div>
-      </section>
+      <HeroSection titleKey="contact.title" pageKey="contact" />
 
       {/* Working Hours */}
       {workingHours.length > 0 && (

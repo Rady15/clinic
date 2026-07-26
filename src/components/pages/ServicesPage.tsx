@@ -72,10 +72,17 @@ export default function ServicesPage() {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [services, setServices] = useState<ServiceData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const itemsPerPage = 9;
 
   useEffect(() => {
+    fetch('/api/public/settings')
+      .then(r => r.json())
+      .then((data: Record<string, string>) => {
+        if (data.services_hero_image) setHeroImage(data.services_hero_image);
+      })
+      .catch(() => {});
     Promise.all([
       fetch('/api/public/service-categories').then(r => r.json()).catch(() => []),
       fetch('/api/public/services').then(r => r.json()).catch(() => []),
@@ -139,9 +146,16 @@ export default function ServicesPage() {
         variants={heroVariants}
         initial="hidden"
         animate="visible"
-        className="relative h-[400px] flex items-center justify-center overflow-hidden bg-gradient-to-b from-[#6DB3D7] to-[#5DADE2]"
+        className="relative h-[400px] flex items-center justify-center overflow-hidden"
+        style={!heroImage ? { background: 'linear-gradient(to bottom, #6DB3D7, #5DADE2)' } : undefined}
       >
-        <div className="absolute inset-0 bg-black/40" />
+        {heroImage && (
+          <>
+            <img src={heroImage} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-black/40" />
+          </>
+        )}
+        {!heroImage && <div className="absolute inset-0 bg-black/40" />}
 
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">

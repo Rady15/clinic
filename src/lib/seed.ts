@@ -27,6 +27,12 @@ export async function seedDatabase() {
     { key: 'working_hours_text', value: 'السبت - الخميس: 10:00 ص - 10:00 م | الجمعة: مغلق', label: 'ساعات العمل', type: 'textarea', group: 'contact' },
     { key: 'logo_url', value: '', label: 'رابط الشعار', type: 'image', group: 'appearance' },
     { key: 'primary_color', value: '#6DB3D7', label: 'اللون الأساسي', type: 'text', group: 'appearance' },
+    { key: 'doctors_hero_image', value: '', label: 'صورة خلفية صفحة الأطباء', type: 'image', group: 'appearance' },
+    { key: 'services_hero_image', value: '', label: 'صورة خلفية صفحة الخدمات', type: 'image', group: 'appearance' },
+    { key: 'contact_hero_image', value: '', label: 'صورة خلفية صفحة التواصل', type: 'image', group: 'appearance' },
+    { key: 'news_hero_image', value: '', label: 'صورة خلفية صفحة الأخبار', type: 'image', group: 'appearance' },
+    { key: 'booking_hero_image', value: '', label: 'صورة خلفية صفحة الحجز', type: 'image', group: 'appearance' },
+    { key: 'jobs_hero_image', value: '', label: 'صورة خلفية صفحة التوظيف', type: 'image', group: 'appearance' },
   ];
 
   for (const s of defaultSettings) {
