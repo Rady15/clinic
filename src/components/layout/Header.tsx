@@ -501,7 +501,7 @@ function HeaderLoginForm({ onClose }: { onClose: () => void }) {
     if (res?.error) {
       setError(locale === 'en' ? 'Invalid email or password' : 'البريد الإلكتروني أو كلمة المرور غير صحيحة');
     } else {
-      // Check user role and redirect
+      // Use the email from the form — it may be username or email
       try {
         const meRes = await fetch(`/api/auth/me?email=${encodeURIComponent(email)}`);
         const meData = await meRes.json();

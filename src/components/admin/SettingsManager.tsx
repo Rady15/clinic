@@ -111,21 +111,25 @@ export default function SettingsManager() {
                 <CardTitle>{groupLabels[groupKey] || groupKey}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {settings.map((setting: any) => (
+                {settings.map((setting: any) => {
+                  const isImage = setting.type === 'image' || setting.key?.endsWith('_image') || setting.key?.endsWith('_image_url') || setting.key === 'logo_url';
+                  const isBoolean = setting.type === 'boolean';
+                  const isTextarea = setting.type === 'textarea';
+                  return (
                   <div key={setting.id} className="space-y-2">
                     <Label className="text-sm">{setting.label}</Label>
-                    {setting.type === 'textarea' ? (
+                    {isTextarea ? (
                       <Textarea
                         value={setting.value || ''}
                         onChange={(e) => updateSetting(setting.id, e.target.value)}
                         rows={3}
                       />
-                    ) : setting.type === 'boolean' ? (
+                    ) : isBoolean ? (
                       <Switch
                         checked={setting.value === 'true'}
                         onCheckedChange={(v) => updateSetting(setting.id, v ? 'true' : 'false')}
                       />
-                    ) : setting.type === 'image' ? (
+                    ) : isImage ? (
                       <ImageUploader
                         value={setting.value || ''}
                         onChange={(v) => updateSetting(setting.id, v)}
@@ -139,7 +143,8 @@ export default function SettingsManager() {
                       />
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </CardContent>
             </Card>
           </TabsContent>

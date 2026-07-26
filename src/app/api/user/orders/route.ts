@@ -10,7 +10,7 @@ export async function GET() {
   }
   const orders = await db.order.findMany({
     where: { email: session.user.email },
-    include: { items: true, payments: true },
+    include: { items: true },
     orderBy: { createdAt: 'desc' },
   });
   return NextResponse.json(orders);

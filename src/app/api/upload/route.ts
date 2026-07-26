@@ -1,16 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-const ADMIN_TOKEN = 'clinic-admin-token-2024';
-
-async function verifyUploadAuth(): Promise<boolean> {
-  const cookieStore = await cookies();
-  return cookieStore.get('admin_token')?.value === ADMIN_TOKEN;
-}
+import { verifyAdmin } from '@/lib/admin-auth';
 
 export async function POST(request: NextRequest) {
   try {
-    if (!await verifyUploadAuth()) {
+    if (!(await verifyAdmin(request))) {
       return NextResponse.json({ error: 'Unauthorized - Please login to admin first' }, { status: 401 });
     }
 
