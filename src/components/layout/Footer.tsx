@@ -119,18 +119,7 @@ export default function Footer() {
               </div>
               <span className="text-lg font-bold">{clinicName}</span>
             </div>
-            <p className="text-sm text-gray-300 leading-relaxed mb-4">{clinicDesc}</p>
-            <div className="flex items-center gap-3">
-              {socialLinks.map(link => {
-                const IconComp = socialIconMap[link.platform];
-                return IconComp ? (
-                  <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
-                    className="w-9 h-9 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#6DB3D7] transition-colors">
-                    <IconComp className="w-4 h-4" />
-                  </a>
-                ) : null;
-              })}
-            </div>
+            <p className="text-sm text-gray-300 leading-relaxed">{clinicDesc}</p>
           </div>
 
           {/* Quick Links */}
@@ -202,9 +191,22 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-          <p className="text-sm text-gray-400">
-            {locale === 'en' ? `Copyright © ${new Date().getFullYear()} ${clinicName}. ${t('footer.rights', locale)}.` : `حقوق الطبع والنشر © ${new Date().getFullYear()} ${clinicName}. ${t('footer.rights', locale)}.`}
-          </p>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              {socialLinks.map(link => {
+                const IconComp = socialIconMap[link.platform];
+                return IconComp ? (
+                  <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
+                    className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center hover:bg-[#6DB3D7] transition-colors">
+                    <IconComp className="w-4 h-4" />
+                  </a>
+                ) : null;
+              })}
+            </div>
+            <p className="text-sm text-gray-400">
+              {locale === 'en' ? `Copyright © ${new Date().getFullYear()} ${clinicName}. ${t('footer.rights', locale)}.` : `حقوق الطبع والنشر © ${new Date().getFullYear()} ${clinicName}. ${t('footer.rights', locale)}.`}
+            </p>
+          </div>
           <a href={`tel:${phone}`} className="flex items-center gap-2 text-sm text-gray-400">
             <Phone className="w-4 h-4" />
             <span className="font-semibold" dir="ltr">{phone}</span>
