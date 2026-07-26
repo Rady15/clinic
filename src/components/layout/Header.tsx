@@ -502,8 +502,8 @@ function HeaderLoginForm({ onClose }: { onClose: () => void }) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && <p className="text-sm text-red-500 bg-red-50 p-2 rounded-lg">{error}</p>}
       <div>
-        <label className="block text-sm font-medium text-[#333] mb-1">{t('header.username', locale)} *</label>
-        <Input className="h-11 rounded-lg" type="email" placeholder={locale === 'en' ? 'Enter your email' : 'أدخل بريدك الإلكتروني'} value={email} onChange={e => setEmail(e.target.value)} required />
+        <label className="block text-sm font-medium text-[#333] mb-1">{locale === 'en' ? 'Email or Username' : 'البريد الإلكتروني أو اسم المستخدم'} *</label>
+        <Input className="h-11 rounded-lg" type="text" placeholder={locale === 'en' ? 'Enter email or username' : 'أدخل البريد الإلكتروني أو اسم المستخدم'} value={email} onChange={e => setEmail(e.target.value)} required />
       </div>
       <div>
         <label className="block text-sm font-medium text-[#333] mb-1">{t('header.password', locale)} *</label>

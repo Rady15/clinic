@@ -166,9 +166,9 @@ function AccountPageInner() {
         {view === 'login' && (
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-[#333] mb-1">{t('header.username', locale)} *</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">{locale === 'en' ? 'Email or Username' : 'البريد الإلكتروني أو اسم المستخدم'} *</label>
               <div className="relative">
-                <Input type="email" placeholder={locale === 'en' ? 'Enter your email' : 'أدخل بريدك الإلكتروني'} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="h-11 pr-10 rounded-xl" required />
+                <Input type="text" placeholder={locale === 'en' ? 'Enter email or username' : 'أدخل البريد الإلكتروني أو اسم المستخدم'} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="h-11 pr-10 rounded-xl" required />
                 <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7F8C8D]" />
               </div>
             </div>

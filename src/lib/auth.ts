@@ -8,13 +8,16 @@ const providers: NextAuthOptions['providers'] = [
   CredentialsProvider({
     name: 'credentials',
     credentials: {
-      email: { label: 'Email', type: 'email' },
+      email: { label: 'Email or Username', type: 'text' },
       password: { label: 'Password', type: 'password' },
     },
     async authorize(credentials) {
       if (!credentials?.email || !credentials?.password) return null;
 
-      const user = await db.user.findUnique({ where: { email: credentials.email } });
+      const identifier = credentials.email;
+      const user = await db.user.findFirst({
+        where: { OR: [{ email: identifier }, { name: identifier }] },
+      });
       if (!user || !user.password) return null;
 
       const valid = await bcrypt.compare(credentials.password, user.password);
