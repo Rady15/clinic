@@ -39,6 +39,7 @@ const menuItems = [
   { id: 'messages', label: 'الرسائل', icon: MessageSquare },
   { id: 'job-applications', label: 'طلبات التوظيف', icon: Briefcase },
   { id: 'ratings', label: 'التقييمات', icon: Star },
+  { id: 'cta-banner', label: 'بانر الدفع بالتقسيط', icon: Image },
 ];
 
 export default function AdminSidebar({ currentPage, onPageChange, onLogout }: AdminSidebarProps) {

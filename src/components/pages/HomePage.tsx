@@ -119,6 +119,16 @@ interface InsuranceData {
   nameEn: string;
   logo: string;
   order: number;
+}
+
+interface CtaBannerConfig {
+  titleAr: string;
+  titleEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  image: string;
+  bgColor: string;
+  buttons: { textAr: string; textEn: string; link: string; icon: string }[];
   isActive: boolean;
 }
 
@@ -148,6 +158,7 @@ export default function HomePage() {
   const [articles, setArticles] = useState<ArticleData[]>([]);
   const [insurance, setInsurance] = useState<InsuranceData[]>([]);
   const [workingHoursText, setWorkingHoursText] = useState('');
+  const [ctaBanner, setCtaBanner] = useState<CtaBannerConfig | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -170,8 +181,14 @@ export default function HomePage() {
       setVideos((vidData || []).filter((v: VideoData) => v.isActive !== false).sort((a: VideoData, b: VideoData) => a.order - b.order));
       setArticles((artData || []).filter((a: ArticleData) => a.isActive !== false));
       setInsurance((insData || []).filter((i: InsuranceData) => i.isActive !== false).sort((a: InsuranceData, b: InsuranceData) => a.order - b.order));
-      const wh = (settData as Record<string, string> | undefined)?.workingHours;
-      if (wh) setWorkingHoursText(wh);
+      const sett = settData as Record<string, string> | undefined;
+      if (sett?.workingHours) setWorkingHoursText(sett.workingHours);
+      if (sett?.cta_banner) {
+        try {
+          const parsed = JSON.parse(sett.cta_banner);
+          if (parsed.isActive !== false) setCtaBanner(parsed);
+        } catch {}
+      }
       setLoading(false);
     });
   }, []);
@@ -337,19 +354,30 @@ export default function HomePage() {
       )}
 
       {/* CTA Banner - Pay Later */}
-      <section className="py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-gradient-to-l from-[#6DB3D7] to-[#5DADE2] rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-right">
-              <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{t('home.smilePayLater', locale)}</h3>
-              <p className="text-white/80">{t('home.smilePayLaterDesc', locale)}</p>
+      {ctaBanner && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6" style={{ background: `linear-gradient(to left, ${ctaBanner.bgColor}, ${ctaBanner.bgColor}cc)` }}>
+              <div className="text-center md:text-right">
+                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{locale === 'ar' ? ctaBanner.titleAr : ctaBanner.titleEn}</h3>
+                <p className="text-white/80">{locale === 'ar' ? ctaBanner.descriptionAr : ctaBanner.descriptionEn}</p>
+              </div>
+              <div className="flex gap-3 shrink-0">
+                {ctaBanner.buttons.map((btn: any, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentPage(btn.link as any || 'booking')}
+                    className="bg-white text-[#6DB3D7] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
+                  >
+                    {btn.icon && <img src={btn.icon} alt="" className="w-5 h-5" />}
+                    {locale === 'ar' ? btn.textAr : btn.textEn}
+                  </button>
+                ))}
+              </div>
             </div>
-            <button onClick={() => setCurrentPage('services')} className="bg-white text-[#6DB3D7] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors shrink-0">
-              {t('home.browseServices', locale)}
-            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Premium Services Section */}
       {featuredServices.length > 0 && (
