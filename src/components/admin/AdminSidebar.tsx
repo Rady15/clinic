@@ -3,11 +3,12 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigationStore } from '@/store/navigation-store';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard, Image, Stethoscope, FolderOpen, UserCog,
   Newspaper, Star, Shield, Video, Popcorn, FileText, Settings,
-  Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare, Calendar, Briefcase, Navigation, Share2, Clock, CalendarDays, Receipt
+  Menu, LogOut, ChevronLeft, ChevronRight, MessageSquare, Calendar, Briefcase, Navigation, Share2, Clock, CalendarDays, Receipt, ExternalLink
 } from 'lucide-react';
 
 interface AdminSidebarProps {
@@ -44,6 +45,7 @@ export default function AdminSidebar({ currentPage, onPageChange, onLogout }: Ad
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { toast } = useToast();
+  const { setCurrentPage } = useNavigationStore();
 
   const handleLogout = async () => {
     try {
@@ -101,6 +103,13 @@ export default function AdminSidebar({ currentPage, onPageChange, onLogout }: Ad
       </nav>
 
       <div className="p-2 border-t border-gray-200">
+        <button
+          onClick={() => setCurrentPage('home')}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#6DB3D7] hover:bg-[#EBF5FB] transition-all text-sm"
+        >
+          <ExternalLink className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span>عرض الموقع</span>}
+        </button>
         <button
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-red-500 hover:bg-red-50 transition-all text-sm"
