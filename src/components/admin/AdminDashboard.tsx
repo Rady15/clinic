@@ -50,41 +50,33 @@ const adminPages: Record<string, React.ComponentType> = {
   'ratings': RatingManager,
 };
 
+function getInitialAdminPage(): string {
+  if (typeof window === 'undefined') return 'dashboard';
+  const saved = localStorage.getItem('admin_page');
+  if (saved && adminPages[saved]) return saved;
+  return 'dashboard';
+}
+
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentPage, setCurrentPageState] = useState('dashboard');
-  const [checking, setChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('admin_auth') === 'true';
+  });
+  const [currentPage, setCurrentPageState] = useState(getInitialAdminPage);
+  const { toast } = useToast();
 
   const setCurrentPage = (page: string) => {
     setCurrentPageState(page);
     localStorage.setItem('admin_page', page);
   };
-  const { toast } = useToast();
-
-  useEffect(() => {
-    const localAuth = localStorage.getItem('admin_auth');
-    if (localAuth === 'true') {
-      setIsAuthenticated(true);
-      const savedPage = localStorage.getItem('admin_page');
-      if (savedPage && adminPages[savedPage]) {
-        setCurrentPageState(savedPage);
-      }
-    }
-    setChecking(false);
-  }, []);
 
   const handleLogout = () => {
+    localStorage.removeItem('admin_page');
+    localStorage.removeItem('admin_auth');
+    localStorage.removeItem('admin_name');
     setIsAuthenticated(false);
-    setCurrentPage('dashboard');
+    setCurrentPageState('dashboard');
   };
-
-  if (checking) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin w-8 h-8 border-4 border-[#6DB3D7] border-t-transparent rounded-full" />
-      </div>
-    );
-  }
 
   if (!isAuthenticated) {
     return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;

@@ -54,6 +54,7 @@ export default function AdminSidebar({ currentPage, onPageChange, onLogout }: Ad
       });
       localStorage.removeItem('admin_auth');
       localStorage.removeItem('admin_name');
+      localStorage.removeItem('admin_page');
       toast({ title: 'تم تسجيل الخروج' });
       onLogout();
     } catch {
