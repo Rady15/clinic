@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
+import { useSession } from 'next-auth/react';
 import { t } from '@/lib/i18n';
 import { Phone, Mail, MessageCircle, MapPin, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ interface SocialLinkData {
 export default function ContactPage() {
   const { setCurrentPage } = useNavigationStore();
   const { locale } = useLanguageStore();
+  const { data: session } = useSession();
   const [formState, setFormState] = useState({ name: '', email: '', phone: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -49,6 +51,30 @@ export default function ContactPage() {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch('/api/user/profile')
+        .then(r => r.ok ? r.json() : null)
+        .then(p => {
+          if (p) {
+            setFormState(prev => ({
+              ...prev,
+              name: prev.name || p.name || '',
+              email: prev.email || p.email || '',
+              phone: prev.phone || '',
+            }));
+          }
+        })
+        .catch(() => {
+          setFormState(prev => ({
+            ...prev,
+            name: prev.name || session.user?.name || '',
+            email: prev.email || session.user?.email || '',
+          }));
+        });
+    }
+  }, [session]);
 
   const phone = settings.phone || '9200006802';
   const whatsapp = settings.whatsapp || '0537666284';
