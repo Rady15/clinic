@@ -15,6 +15,7 @@ import BookingPage from '@/components/pages/BookingPage';
 import RatingPage from '@/components/pages/RatingPage';
 import CartPage from '@/components/pages/CartPage';
 import AccountPage from '@/components/pages/AccountPage';
+import DashboardPage from '@/components/pages/DashboardPage';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import { AnimatePresence, motion } from 'framer-motion';
 
@@ -32,6 +33,7 @@ const pages: Record<string, React.ComponentType> = {
   rating: RatingPage,
   cart: CartPage,
   account: AccountPage,
+  dashboard: DashboardPage,
 };
 
 export default function Page() {

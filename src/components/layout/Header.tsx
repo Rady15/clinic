@@ -135,6 +135,8 @@ export default function Header() {
   const handleLoginClick = () => {
     if (isAdmin) {
       setCurrentPage('admin');
+    } else if (isLoggedIn) {
+      setCurrentPage('dashboard');
     } else {
       setLoginOpen(true);
     }
@@ -265,6 +267,15 @@ export default function Header() {
               {/* Login / User Menu */}
               {isLoggedIn ? (
                 <div className="hidden md:flex items-center gap-2">
+                  {!isAdmin && (
+                    <button
+                      onClick={() => setCurrentPage('dashboard')}
+                      className="flex items-center gap-2 text-sm text-[#333] hover:text-[#6DB3D7] transition-colors px-3 py-2 rounded-lg hover:bg-[#EBF5FB]"
+                    >
+                      <User className="w-4 h-4" />
+                      <span>{locale === 'en' ? 'My Account' : 'حسابي'}</span>
+                    </button>
+                  )}
                   {isAdmin && (
                     <button
                       onClick={() => setCurrentPage('admin')}
@@ -398,6 +409,15 @@ export default function Header() {
                   </button>
                   {isLoggedIn ? (
                     <>
+                      {!isAdmin && (
+                        <button
+                          onClick={() => { setCurrentPage('dashboard'); setMobileMenuOpen(false); }}
+                          className="w-full flex items-center justify-center gap-2 text-[#333] py-3 rounded-lg border border-gray-200 hover:bg-[#EBF5FB] transition-colors"
+                        >
+                          <User className="w-5 h-5" />
+                          <span>{locale === 'en' ? 'My Account' : 'حسابي'}</span>
+                        </button>
+                      )}
                       {isAdmin && (
                         <button
                           onClick={() => { setCurrentPage('admin'); setMobileMenuOpen(false); }}
@@ -489,11 +509,11 @@ function HeaderLoginForm({ onClose }: { onClose: () => void }) {
         if (meData.role === 'admin') {
           setCurrentPage('admin');
         } else {
-          setCurrentPage('home');
+          setCurrentPage('dashboard');
         }
       } catch {
         onClose();
-        setCurrentPage('home');
+        setCurrentPage('dashboard');
       }
     }
   };

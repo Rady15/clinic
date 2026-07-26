@@ -14,6 +14,7 @@ export type PageName =
   | 'rating' 
   | 'cart' 
   | 'account' 
+  | 'dashboard'
   | 'service-category'
   | 'news-article'
   | 'admin';

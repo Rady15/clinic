@@ -27,7 +27,7 @@ function AccountPageInner() {
   const [successMsg, setSuccessMsg] = useState('');
 
   useEffect(() => {
-    if (session) setCurrentPage('home');
+    if (session) setCurrentPage('dashboard');
   }, [session, setCurrentPage]);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ function AccountPageInner() {
         toast({ title: locale === 'en' ? 'Login failed' : 'فشل تسجيل الدخول', description: locale === 'en' ? 'Invalid email or password' : 'البريد الإلكتروني أو كلمة المرور غير صحيحة', variant: 'destructive' });
       } else {
         toast({ title: locale === 'en' ? 'Welcome back!' : 'مرحباً بعودتك!' });
-        setCurrentPage('home');
+        setCurrentPage('dashboard');
       }
     } catch {
       toast({ title: 'حدث خطأ', variant: 'destructive' });
