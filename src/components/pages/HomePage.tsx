@@ -132,6 +132,19 @@ interface CtaBannerConfig {
   isActive: boolean;
 }
 
+interface ImageBannerData {
+  id: string;
+  image: string;
+  position: string;
+  fullWidth: boolean;
+  ctaEnabled: boolean;
+  ctaTextAr: string;
+  ctaTextEn: string;
+  ctaLink: string;
+  order: number;
+  isActive: boolean;
+}
+
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Stethoscope,
 };
@@ -159,6 +172,7 @@ export default function HomePage() {
   const [insurance, setInsurance] = useState<InsuranceData[]>([]);
   const [workingHoursText, setWorkingHoursText] = useState('');
   const [ctaBanner, setCtaBanner] = useState<CtaBannerConfig | null>(null);
+  const [imageBanners, setImageBanners] = useState<ImageBannerData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -189,6 +203,12 @@ export default function HomePage() {
           if (parsed.isActive !== false) setCtaBanner(parsed);
         } catch {}
       }
+      if (sett?.home_image_banners) {
+        try {
+          const parsed = JSON.parse(sett.home_image_banners);
+          setImageBanners(parsed.filter((b: ImageBannerData) => b.isActive !== false));
+        } catch {}
+      }
       setLoading(false);
     });
   }, []);
@@ -214,6 +234,26 @@ export default function HomePage() {
   const displayDoctors = doctors.slice(0, 10);
   const doctorsPerSlide = 5;
   const maxDoctorSlide = Math.ceil(displayDoctors.length / doctorsPerSlide) - 1;
+
+  const renderImageBanners = (position: string) => {
+    const matching = imageBanners.filter(b => b.position === position).sort((a, b) => a.order - b.order);
+    if (matching.length === 0) return null;
+    return matching.map((banner) => (
+      <div key={banner.id} className={`${banner.fullWidth ? '' : 'max-w-7xl mx-auto px-4'} my-6`}>
+        <div className="relative rounded-2xl overflow-hidden group">
+          <img src={banner.image} alt="" className="w-full h-auto object-cover max-h-[400px]" />
+          {banner.ctaEnabled && (
+            <button
+              onClick={() => setCurrentPage(banner.ctaLink as any || 'booking')}
+              className="absolute bottom-6 right-6 bg-white/90 px-6 py-3 rounded-xl font-bold text-[#2C3E50] hover:bg-white transition-colors backdrop-blur-sm text-sm"
+            >
+              {locale === 'ar' ? banner.ctaTextAr : banner.ctaTextEn}
+            </button>
+          )}
+        </div>
+      </div>
+    ));
+  };
 
   if (loading) {
     return (
@@ -310,6 +350,8 @@ export default function HomePage() {
         )}
       </section>
 
+      {renderImageBanners('after_hero')}
+
       {/* Info Strip */}
       <div className="bg-[#EBF5FB] py-3">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-4">
@@ -320,6 +362,8 @@ export default function HomePage() {
           </p>
         </div>
       </div>
+
+      {renderImageBanners('after_info_strip')}
 
       {/* Services Grid */}
       {categories.length > 0 && (
@@ -353,6 +397,8 @@ export default function HomePage() {
         </section>
       )}
 
+      {renderImageBanners('after_services_grid')}
+
       {/* CTA Banner - Pay Later */}
       {ctaBanner && (
         <section className="py-12">
@@ -378,6 +424,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {renderImageBanners('after_cta_banner')}
 
       {/* Premium Services Section */}
       {featuredServices.length > 0 && (
@@ -416,6 +464,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {renderImageBanners('after_premium_services')}
 
       {/* Doctors Section */}
       {displayDoctors.length > 0 && (
@@ -475,6 +525,8 @@ export default function HomePage() {
         </section>
       )}
 
+      {renderImageBanners('after_doctors')}
+
       {/* Testimonials */}
       {testimonials.length > 0 && (
         <section className="py-16 bg-[#EBF5FB]">
@@ -507,8 +559,12 @@ export default function HomePage() {
         </section>
       )}
 
+      {renderImageBanners('after_testimonials')}
+
       {/* Before & After Section */}
       <BeforeAfterSection />
+
+      {renderImageBanners('after_before_after')}
 
       {/* Videos Section */}
       {videos.length > 0 && (
@@ -531,6 +587,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {renderImageBanners('after_videos')}
 
       {/* Blog Preview */}
       {articles.length > 0 && (
@@ -565,6 +623,8 @@ export default function HomePage() {
         </section>
       )}
 
+      {renderImageBanners('after_blog')}
+
       {/* CTA Contact */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4">
@@ -579,6 +639,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {renderImageBanners('after_cta_contact')}
 
       {/* Insurance Companies */}
       {insurance.length > 0 && (
@@ -602,6 +664,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {renderImageBanners('after_insurance')}
     </main>
   );
 }

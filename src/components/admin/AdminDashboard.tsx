@@ -26,6 +26,7 @@ import MessageManager from './MessageManager';
 import JobApplicationManager from './JobApplicationManager';
 import RatingManager from './RatingManager';
 import CtaBannerManager from './CtaBannerManager';
+import ImageBannerManager from './ImageBannerManager';
 
 const adminPages: Record<string, React.ComponentType> = {
   'dashboard': DashboardHome,
@@ -50,6 +51,7 @@ const adminPages: Record<string, React.ComponentType> = {
   'job-applications': JobApplicationManager,
   'ratings': RatingManager,
   'cta-banner': CtaBannerManager,
+  'image-banners': ImageBannerManager,
 };
 
 function getInitialAdminPage(): string {
