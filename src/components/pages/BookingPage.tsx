@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useLanguageStore } from '@/store/language-store';
+import { useSession } from 'next-auth/react';
 import { t } from '@/lib/i18n';
 import { Check, Stethoscope, User, CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -39,6 +40,7 @@ const steps = [
 export default function BookingPage() {
   const { setCurrentPage } = useNavigationStore();
   const { locale } = useLanguageStore();
+  const { data: session } = useSession();
   const [step, setStep] = useState(1);
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedDoctor, setSelectedDoctor] = useState('');
@@ -49,6 +51,16 @@ export default function BookingPage() {
   const [categories, setCategories] = useState<CategoryData[]>([]);
   const [doctors, setDoctors] = useState<DoctorData[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (session?.user) {
+      setForm(prev => ({
+        ...prev,
+        name: prev.name || session.user?.name || '',
+        email: prev.email || session.user?.email || '',
+      }));
+    }
+  }, [session]);
 
   useEffect(() => {
     Promise.all([
@@ -68,26 +80,24 @@ export default function BookingPage() {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const res = await fetch('/api/public/booking/checkout', {
+      const res = await fetch('/api/public/booking', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name,
           phone: form.phone,
-          email: form.email,
+          email: form.email || session?.user?.email || '',
           department: selectedDept,
           doctorId: selectedDoctorId,
           date: form.date,
           time: form.time,
           notes: form.notes,
-          amount: 0,
         }),
       });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (res.ok) {
+        setSubmitted(true);
       } else {
-        alert(locale === 'en' ? 'Error creating checkout' : 'خطأ في إنشاء عملية الدفع');
+        alert(locale === 'en' ? 'Error submitting booking' : 'خطأ في إرسال الحجز');
       }
     } catch {
       alert(locale === 'en' ? 'Error submitting booking' : 'خطأ في إرسال الحجز');

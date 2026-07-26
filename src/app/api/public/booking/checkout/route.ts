@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
           quantity: 1,
         },
       ],
-      customer_email: email,
+      ...(email ? { customer_email: email } : {}),
       success_url: `${request.nextUrl.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${request.nextUrl.origin}/checkout/cancel`,
       metadata: {

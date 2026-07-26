@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
+import { useSession } from 'next-auth/react';
 import { t } from '@/lib/i18n';
 import CurrencySymbol from '@/components/ui/currency-symbol';
 import { ShoppingCart, Trash2, Plus, Minus, ArrowRight, Loader2 } from 'lucide-react';
@@ -13,6 +14,7 @@ import { useState } from 'react';
 export default function CartPage() {
   const { setCurrentPage } = useNavigationStore();
   const { locale } = useLanguageStore();
+  const { data: session } = useSession();
   const { items, removeItem, updateQuantity, getTotal, clearCart } = useCartStore();
   const total = getTotal();
   const [loading, setLoading] = useState(false);
@@ -33,8 +35,8 @@ export default function CartPage() {
             image: item.image,
             category: item.category,
           })),
-          customerEmail: '',
-          customerName: '',
+          customerEmail: session?.user?.email || '',
+          customerName: session?.user?.name || '',
           customerPhone: '',
         }),
       });
