@@ -57,24 +57,11 @@ export default function AdminDashboard() {
   const { toast } = useToast();
 
   useEffect(() => {
-    const verifyAuth = async () => {
-      const localAuth = localStorage.getItem('admin_auth');
-      if (localAuth === 'true') {
-        try {
-          const res = await fetch('/api/admin/auth/me');
-          if (res.ok) {
-            setIsAuthenticated(true);
-            setChecking(false);
-            return;
-          }
-        } catch {
-          // Server check failed
-        }
-      }
-      setIsAuthenticated(false);
-      setChecking(false);
-    };
-    verifyAuth();
+    const localAuth = localStorage.getItem('admin_auth');
+    if (localAuth === 'true') {
+      setIsAuthenticated(true);
+    }
+    setChecking(false);
   }, []);
 
   const handleLogout = () => {
