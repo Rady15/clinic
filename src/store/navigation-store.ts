@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export type PageName = 
   | 'home' 
@@ -31,19 +32,27 @@ interface NavigationState {
   setLoginOpen: (open: boolean) => void;
 }
 
-export const useNavigationStore = create<NavigationState>((set) => ({
-  currentPage: 'home',
-  pageParams: {},
-  isMobileMenuOpen: false,
-  isSearchOpen: false,
-  isCartOpen: false,
-  isLoginOpen: false,
-  setCurrentPage: (page, params = {}) => {
-    set({ currentPage: page, pageParams: params, isMobileMenuOpen: false, isSearchOpen: false });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  },
-  setMobileMenuOpen: (open) => set({ isMobileMenuOpen: open }),
-  setSearchOpen: (open) => set({ isSearchOpen: open }),
-  setCartOpen: (open) => set({ isCartOpen: open }),
-  setLoginOpen: (open) => set({ isLoginOpen: open }),
-}));
+export const useNavigationStore = create<NavigationState>()(
+  persist(
+    (set) => ({
+      currentPage: 'home',
+      pageParams: {},
+      isMobileMenuOpen: false,
+      isSearchOpen: false,
+      isCartOpen: false,
+      isLoginOpen: false,
+      setCurrentPage: (page, params = {}) => {
+        set({ currentPage: page, pageParams: params, isMobileMenuOpen: false, isSearchOpen: false });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      setMobileMenuOpen: (open) => set({ isMobileMenuOpen: open }),
+      setSearchOpen: (open) => set({ isSearchOpen: open }),
+      setCartOpen: (open) => set({ isCartOpen: open }),
+      setLoginOpen: (open) => set({ isLoginOpen: open }),
+    }),
+    {
+      name: 'clinic-navigation',
+      partialize: (state) => ({ currentPage: state.currentPage, pageParams: state.pageParams }),
+    }
+  )
+);
