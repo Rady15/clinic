@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  transpilePackages: ['next-auth'],
 };
 
 export default nextConfig;
