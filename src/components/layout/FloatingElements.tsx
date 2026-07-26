@@ -96,7 +96,7 @@ export function SocialSidebar() {
   };
 
   return (
-    <div className="fixed left-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 p-2">
+    <div className="fixed right-0 top-1/2 -translate-y-1/2 z-30 flex flex-col gap-2 p-2">
       {socialLinks.map(link => {
         const IconComponent = iconMap[link.platform] || iconMap[link.icon] || MessageCircle;
         return (
@@ -105,7 +105,7 @@ export function SocialSidebar() {
           href={link.url}
           target="_blank"
           rel="noopener noreferrer"
-          className={`w-10 h-10 bg-[#2C3E50] rounded-l-lg flex items-center justify-center text-white ${colorMap[link.platform] || 'hover:bg-[#6DB3D7]'} transition-all hover:w-12`}
+          className={`w-10 h-10 bg-[#2C3E50] rounded-r-lg flex items-center justify-center text-white ${colorMap[link.platform] || 'hover:bg-[#6DB3D7]'} transition-all hover:w-12`}
         >
           <IconComponent className="w-4 h-4" />
         </a>
