@@ -27,6 +27,9 @@ export async function POST(request: NextRequest) {
       quantity: item.quantity || 1,
     }));
 
+    const subtotal = items.reduce((sum: number, item: any) => sum + item.price * (item.quantity || 1), 0);
+    const tax = Math.round(subtotal * 0.15 * 100) / 100;
+
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       payment_method_types: ['card'],
@@ -39,6 +42,8 @@ export async function POST(request: NextRequest) {
         customerName: customerName || '',
         customerPhone: customerPhone || '',
         items: JSON.stringify(items),
+        subtotal: subtotal.toString(),
+        tax: tax.toString(),
       },
     });
 

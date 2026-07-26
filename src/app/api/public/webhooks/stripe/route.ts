@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
       if (type === 'order') {
         const items = JSON.parse(metadata.items || '[]');
-        const subtotal = parseFloat(metadata.subtotal || '0');
+        const subtotal = parseFloat(metadata.subtotal || '0') || (session.amount_total ? session.amount_total / 100 : 0);
         const tax = parseFloat(metadata.tax || '0');
         const total = subtotal + tax;
 

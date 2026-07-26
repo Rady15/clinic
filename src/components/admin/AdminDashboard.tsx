@@ -62,25 +62,51 @@ function getInitialAdminPage(): string {
 }
 
 export default function AdminDashboard() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    return localStorage.getItem('admin_auth') === 'true';
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [currentPage, setCurrentPageState] = useState(getInitialAdminPage);
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetch('/api/admin/auth', { method: 'GET' })
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('Not authenticated');
+      })
+      .then(data => {
+        if (data.authenticated) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      })
+      .catch(() => setIsAuthenticated(false));
+  }, []);
 
   const setCurrentPage = (page: string) => {
     setCurrentPageState(page);
     localStorage.setItem('admin_page', page);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'logout' }),
+      });
+    } catch { /* ignore */ }
     localStorage.removeItem('admin_page');
-    localStorage.removeItem('admin_auth');
-    localStorage.removeItem('admin_name');
     setIsAuthenticated(false);
     setCurrentPageState('dashboard');
   };
+
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">جاري التحقق...</div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <AdminLogin onLogin={() => setIsAuthenticated(true)} />;

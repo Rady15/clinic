@@ -29,7 +29,6 @@ export default function AdminLogin({ onLogin }: AdminLoginProps) {
       });
       const data = await res.json();
       if (data.success) {
-        localStorage.setItem('admin_auth', 'true');
         localStorage.setItem('admin_name', data.admin.name || 'Admin');
         toast({ title: 'تم تسجيل الدخول بنجاح', description: `مرحباً ${data.admin.name}` });
         onLogin();
