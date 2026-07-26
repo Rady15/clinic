@@ -1,18 +1,25 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useNavigationStore } from '@/store/navigation-store';
 import { useCartStore } from '@/store/cart-store';
 import { useLanguageStore } from '@/store/language-store';
 import { t } from '@/lib/i18n';
 import CurrencySymbol from '@/components/ui/currency-symbol';
+import { FadeIn, ScaleIn, StaggerContainer, ParallaxMouse, TiltCard, MagneticButton } from '@/components/ui/animated';
 import {
   Stethoscope, ChevronLeft, ChevronRight, Star, Clock, ArrowLeft, Play, Shield, ArrowRight,
   ShoppingCart, Heart, Sparkles
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import BeforeAfterSection from '@/components/pages/BeforeAfterSection';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 interface BannerData {
   id: string;
@@ -213,6 +220,28 @@ export default function HomePage() {
     });
   }, []);
 
+  // GSAP ScrollTrigger parallax for hero
+  useEffect(() => {
+    if (loading) return;
+    const heroEl = document.querySelector('.hero-section');
+    if (!heroEl) return;
+
+    const ctx = gsap.context(() => {
+      gsap.to('.hero-section', {
+        scrollTrigger: {
+          trigger: '.hero-section',
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true,
+        },
+        y: 100,
+        opacity: 0.6,
+      });
+    }, heroEl);
+
+    return () => ctx.revert();
+  }, [loading]);
+
   const nextSlide = useCallback(() => {
     if (banners.length === 0) return;
     setCurrentSlide(p => (p + 1) % banners.length);
@@ -273,7 +302,7 @@ export default function HomePage() {
   return (
     <main>
       {/* Hero Slider */}
-      <section className="relative h-[500px] md:h-[600px] overflow-hidden">
+      <section className="hero-section relative h-[500px] md:h-[600px] overflow-hidden">
         {banners.length > 0 ? (
           <AnimatePresence mode="wait">
             <motion.div
@@ -284,9 +313,11 @@ export default function HomePage() {
               transition={{ duration: 0.7 }}
               className="absolute inset-0"
             >
-              {banners[currentSlide]?.image ? (
-                <img src={banners[currentSlide].image} alt="" className="absolute inset-0 w-full h-full object-cover" />
-              ) : null}
+              <ParallaxMouse strength={15} className="absolute inset-0">
+                {banners[currentSlide]?.image ? (
+                  <img src={banners[currentSlide].image} alt="" className="absolute inset-0 w-full h-full object-cover scale-110" />
+                ) : null}
+              </ParallaxMouse>
               <div className={`absolute inset-0 ${banners[currentSlide]?.bgColor || 'from-[#6DB3D7]/90 to-[#2C3E50]/80'} bg-gradient-to-l ${!banners[currentSlide]?.image ? '' : '/90'}`} />
               <div className="absolute inset-0 bg-[url('/hero-pattern.svg')] opacity-10" />
               <div className="relative h-full flex items-center">
@@ -353,15 +384,17 @@ export default function HomePage() {
       {renderImageBanners('after_hero')}
 
       {/* Info Strip */}
-      <div className="bg-[#EBF5FB] py-3">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-4">
-          <Clock className="w-5 h-5 text-[#6DB3D7]" />
-          <p className="text-[#333] font-semibold">
-            <span className="text-[#6DB3D7]">{t('hero.workingHours', locale)}</span>{' '}
-            {workingHoursText || t('hero.workingHoursText', locale)}
-          </p>
+      <FadeIn direction="up" distance={20}>
+        <div className="bg-[#EBF5FB] py-3">
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-4">
+            <Clock className="w-5 h-5 text-[#6DB3D7]" />
+            <p className="text-[#333] font-semibold">
+              <span className="text-[#6DB3D7]">{t('hero.workingHours', locale)}</span>{' '}
+              {workingHoursText || t('hero.workingHoursText', locale)}
+            </p>
+          </div>
         </div>
-      </div>
+      </FadeIn>
 
       {renderImageBanners('after_info_strip')}
 
@@ -369,13 +402,15 @@ export default function HomePage() {
       {categories.length > 0 && (
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-3">{t('home.ourServices', locale)}</h3>
-              <p className="text-[#7F8C8D] text-base max-w-2xl mx-auto">
-                {locale === 'en' ? 'Explore our range of specialized medical and cosmetic services' : 'استكشف مجموعتنا من الخدمات الطبية والتجميلية المتخصصة'}
-              </p>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <FadeIn direction="up">
+              <div className="text-center mb-10">
+                <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-3">{t('home.ourServices', locale)}</h3>
+                <p className="text-[#7F8C8D] text-base max-w-2xl mx-auto">
+                  {locale === 'en' ? 'Explore our range of specialized medical and cosmetic services' : 'استكشف مجموعتنا من الخدمات الطبية والتجميلية المتخصصة'}
+                </p>
+              </div>
+            </FadeIn>
+            <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {categories.map((cat) => (
                 <button
                   key={cat.id}
@@ -392,7 +427,7 @@ export default function HomePage() {
                   <p className="text-sm font-semibold text-[#333] group-hover:text-white transition-colors duration-300 leading-tight">{locale === 'en' ? cat.nameEn : cat.nameAr}</p>
                 </button>
               ))}
-            </div>
+            </StaggerContainer>
           </div>
         </section>
       )}
@@ -401,28 +436,31 @@ export default function HomePage() {
 
       {/* CTA Banner - Pay Later */}
       {ctaBanner && (
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="rounded-2xl p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-6" style={{ background: `linear-gradient(to right, ${ctaBanner.bgColor}, ${ctaBanner.bgColor}cc)` }}>
-              <div className="flex gap-3 shrink-0">
-                {ctaBanner.buttons.map((btn: any, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentPage(btn.link as any || 'booking')}
-                    className="bg-white text-[#6DB3D7] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
-                  >
-                    {btn.icon && <img src={btn.icon} alt="" className="w-5 h-5" />}
-                    {locale === 'ar' ? btn.textAr : btn.textEn}
-                  </button>
-                ))}
-              </div>
-              <div className="text-center md:text-right">
-                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{locale === 'ar' ? ctaBanner.titleAr : ctaBanner.titleEn}</h3>
-                <p className="text-white/80">{locale === 'ar' ? ctaBanner.descriptionAr : ctaBanner.descriptionEn}</p>
+        <ScaleIn>
+          <section className="py-12">
+            <div className="max-w-7xl mx-auto px-4">
+              <div className="rounded-2xl p-8 md:p-12 flex flex-col-reverse md:flex-row items-center justify-between gap-6" style={{ background: `linear-gradient(to right, ${ctaBanner.bgColor}, ${ctaBanner.bgColor}cc)` }}>
+                <div className="flex gap-3 shrink-0">
+                  {ctaBanner.buttons.map((btn: any, idx: number) => (
+                    <MagneticButton key={idx}>
+                      <button
+                        onClick={() => setCurrentPage(btn.link as any || 'booking')}
+                        className="bg-white text-[#6DB3D7] px-8 py-3 rounded-xl font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
+                      >
+                        {btn.icon && <img src={btn.icon} alt="" className="w-5 h-5" />}
+                        {locale === 'ar' ? btn.textAr : btn.textEn}
+                      </button>
+                    </MagneticButton>
+                  ))}
+                </div>
+                <div className="text-center md:text-right">
+                  <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{locale === 'ar' ? ctaBanner.titleAr : ctaBanner.titleEn}</h3>
+                  <p className="text-white/80">{locale === 'ar' ? ctaBanner.descriptionAr : ctaBanner.descriptionEn}</p>
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScaleIn>
       )}
 
       {renderImageBanners('after_cta_banner')}
@@ -431,12 +469,14 @@ export default function HomePage() {
       {featuredServices.length > 0 && (
         <section className="py-24 bg-[#F8FAFC]">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="text-center mb-20">
-              <h3 className="text-4xl md:text-5xl font-bold text-[#2C3E50] mb-5 tracking-tight">{t('home.suggestedServices', locale)}</h3>
-              <p className="text-[#7F8C8D] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-                {locale === 'en' ? 'Discover our premium medical and cosmetic services designed for your wellbeing' : 'اكتشف خدماتنا الطبية والتجميلية المميزة المصممة لراحتك'}
-              </p>
-            </div>
+            <FadeIn direction="up">
+              <div className="text-center mb-20">
+                <h3 className="text-4xl md:text-5xl font-bold text-[#2C3E50] mb-5 tracking-tight">{t('home.suggestedServices', locale)}</h3>
+                <p className="text-[#7F8C8D] text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
+                  {locale === 'en' ? 'Discover our premium medical and cosmetic services designed for your wellbeing' : 'اكتشف خدماتنا الطبية والتجميلية المميزة المصممة لراحتك'}
+                </p>
+              </div>
+            </FadeIn>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
               {featuredServices.map((service, index) => (
@@ -452,15 +492,19 @@ export default function HomePage() {
             </div>
 
             {/* View All Services */}
-            <div className="text-center mt-16">
-              <button
-                onClick={() => setCurrentPage('services')}
-                className="inline-flex items-center gap-3 bg-[#6DB3D7] text-white px-10 py-4 rounded-2xl font-semibold text-base hover:bg-[#5DADE2] transition-all duration-300 hover:shadow-xl hover:shadow-[#6DB3D7]/30"
-              >
-                {locale === 'en' ? 'View All Services' : 'عرض جميع الخدمات'}
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
+            <FadeIn direction="up" delay={0.3}>
+              <div className="text-center mt-16">
+                <MagneticButton>
+                  <button
+                    onClick={() => setCurrentPage('services')}
+                    className="inline-flex items-center gap-3 bg-[#6DB3D7] text-white px-10 py-4 rounded-2xl font-semibold text-base hover:bg-[#5DADE2] transition-all duration-300 hover:shadow-xl hover:shadow-[#6DB3D7]/30"
+                  >
+                    {locale === 'en' ? 'View All Services' : 'عرض جميع الخدمات'}
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
+                </MagneticButton>
+              </div>
+            </FadeIn>
           </div>
         </section>
       )}
@@ -469,94 +513,98 @@ export default function HomePage() {
 
       {/* Doctors Section */}
       {displayDoctors.length > 0 && (
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.ourDoctors', locale)}</h3>
-            <div className="relative">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentDoctorSlide}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
-                >
-                  {displayDoctors.slice(currentDoctorSlide * doctorsPerSlide, (currentDoctorSlide + 1) * doctorsPerSlide).map((doctor) => (
-                    <div key={doctor.id} className="doctor-card bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-50">
-                      {doctor.image ? (
-                        <img src={doctor.image} alt="" className="w-24 h-24 rounded-full object-cover mx-auto mb-3" />
-                      ) : (
-                        <div className="w-24 h-24 bg-[#EBF5FB] rounded-full flex items-center justify-center mx-auto mb-3">
-                          <Stethoscope className="w-10 h-10 text-[#6DB3D7]/50" />
-                        </div>
-                      )}
-                      <h4 className="font-bold text-[#333] text-sm mb-1">{locale === 'en' ? doctor.nameEn : doctor.nameAr}</h4>
-                      <p className="text-xs text-[#7F8C8D] line-clamp-2 leading-relaxed mb-3">{locale === 'en' ? doctor.specialtyEn : doctor.specialtyAr}</p>
-                      <button onClick={() => setCurrentPage('booking')} className="bg-[#6DB3D7] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:bg-[#5DADE2] transition-colors">
-                        {t('home.bookAppointment', locale)}
-                      </button>
-                    </div>
-                  ))}
-                </motion.div>
-              </AnimatePresence>
-              {maxDoctorSlide > 0 && (
-                <div className="flex items-center justify-center gap-4 mt-8">
-                  <button onClick={() => setCurrentDoctorSlide(p => Math.max(0, p - 1))} disabled={currentDoctorSlide === 0} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#EBF5FB] disabled:opacity-30 transition-colors">
-                    <ChevronRight className="w-5 h-5 text-[#6DB3D7]" />
-                  </button>
-                  <div className="flex gap-2">
-                    {Array.from({ length: maxDoctorSlide + 1 }).map((_, i) => (
-                      <button key={i} onClick={() => setCurrentDoctorSlide(i)} className={`w-3 h-3 rounded-full transition-all ${i === currentDoctorSlide ? 'bg-[#6DB3D7] w-8' : 'bg-gray-300'}`} />
+        <FadeIn direction="left">
+          <section className="py-16">
+            <div className="max-w-7xl mx-auto px-4">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.ourDoctors', locale)}</h3>
+              <div className="relative">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentDoctorSlide}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4"
+                  >
+                    {displayDoctors.slice(currentDoctorSlide * doctorsPerSlide, (currentDoctorSlide + 1) * doctorsPerSlide).map((doctor) => (
+                      <TiltCard key={doctor.id} className="doctor-card bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-50">
+                        {doctor.image ? (
+                          <img src={doctor.image} alt="" className="w-24 h-24 rounded-full object-cover mx-auto mb-3" />
+                        ) : (
+                          <div className="w-24 h-24 bg-[#EBF5FB] rounded-full flex items-center justify-center mx-auto mb-3">
+                            <Stethoscope className="w-10 h-10 text-[#6DB3D7]/50" />
+                          </div>
+                        )}
+                        <h4 className="font-bold text-[#333] text-sm mb-1">{locale === 'en' ? doctor.nameEn : doctor.nameAr}</h4>
+                        <p className="text-xs text-[#7F8C8D] line-clamp-2 leading-relaxed mb-3">{locale === 'en' ? doctor.specialtyEn : doctor.specialtyAr}</p>
+                        <button onClick={() => setCurrentPage('booking')} className="bg-[#6DB3D7] text-white text-xs px-4 py-2 rounded-lg font-semibold hover:bg-[#5DADE2] transition-colors">
+                          {t('home.bookAppointment', locale)}
+                        </button>
+                      </TiltCard>
                     ))}
+                  </motion.div>
+                </AnimatePresence>
+                {maxDoctorSlide > 0 && (
+                  <div className="flex items-center justify-center gap-4 mt-8">
+                    <button onClick={() => setCurrentDoctorSlide(p => Math.max(0, p - 1))} disabled={currentDoctorSlide === 0} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#EBF5FB] disabled:opacity-30 transition-colors">
+                      <ChevronRight className="w-5 h-5 text-[#6DB3D7]" />
+                    </button>
+                    <div className="flex gap-2">
+                      {Array.from({ length: maxDoctorSlide + 1 }).map((_, i) => (
+                        <button key={i} onClick={() => setCurrentDoctorSlide(i)} className={`w-3 h-3 rounded-full transition-all ${i === currentDoctorSlide ? 'bg-[#6DB3D7] w-8' : 'bg-gray-300'}`} />
+                      ))}
+                    </div>
+                    <button onClick={() => setCurrentDoctorSlide(p => Math.min(maxDoctorSlide, p + 1))} disabled={currentDoctorSlide === maxDoctorSlide} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#EBF5FB] disabled:opacity-30 transition-colors">
+                      <ChevronLeft className="w-5 h-5 text-[#6DB3D7]" />
+                    </button>
                   </div>
-                  <button onClick={() => setCurrentDoctorSlide(p => Math.min(maxDoctorSlide, p + 1))} disabled={currentDoctorSlide === maxDoctorSlide} className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-[#EBF5FB] disabled:opacity-30 transition-colors">
-                    <ChevronLeft className="w-5 h-5 text-[#6DB3D7]" />
+                )}
+                <div className="text-center mt-6">
+                  <button onClick={() => setCurrentPage('doctors')} className="text-[#6DB3D7] font-semibold hover:underline flex items-center gap-2 mx-auto">
+                    <ArrowLeft className="w-4 h-4" />
+                    {t('home.viewAllDoctors', locale)}
                   </button>
                 </div>
-              )}
-              <div className="text-center mt-6">
-                <button onClick={() => setCurrentPage('doctors')} className="text-[#6DB3D7] font-semibold hover:underline flex items-center gap-2 mx-auto">
-                  <ArrowLeft className="w-4 h-4" />
-                  {t('home.viewAllDoctors', locale)}
-                </button>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </FadeIn>
       )}
 
       {renderImageBanners('after_doctors')}
 
       {/* Testimonials */}
       {testimonials.length > 0 && (
-        <section className="py-16 bg-[#EBF5FB]">
-          <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.clientReviews', locale)}</h3>
-            <div className="relative max-w-2xl mx-auto">
-              <AnimatePresence mode="wait">
-                <motion.div key={currentTestimonial} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-2xl p-8 text-center shadow-sm">
-                  <div className="flex items-center justify-center gap-1 mb-4">
-                    {Array.from({ length: testimonials[currentTestimonial]?.rating || 5 }).map((_, i) => (
-                      <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-                    ))}
+        <FadeIn direction="up">
+          <section className="py-16 bg-[#EBF5FB]">
+            <div className="max-w-7xl mx-auto px-4">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.clientReviews', locale)}</h3>
+              <div className="relative max-w-2xl mx-auto">
+                <AnimatePresence mode="wait">
+                  <motion.div key={currentTestimonial} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bg-white rounded-2xl p-8 text-center shadow-sm">
+                    <div className="flex items-center justify-center gap-1 mb-4">
+                      {Array.from({ length: testimonials[currentTestimonial]?.rating || 5 }).map((_, i) => (
+                        <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <p className="text-[#333] text-lg leading-relaxed mb-4">&ldquo;{locale === 'en' ? testimonials[currentTestimonial]?.textEn : testimonials[currentTestimonial]?.textAr}&rdquo;</p>
+                    <p className="font-bold text-[#2C3E50]">{locale === 'en' ? testimonials[currentTestimonial]?.nameEn : testimonials[currentTestimonial]?.nameAr}</p>
+                  </motion.div>
+                </AnimatePresence>
+                {testimonials.length > 1 && (
+                  <div className="flex items-center justify-center gap-4 mt-6">
+                    <button onClick={() => setCurrentTestimonial(p => (p - 1 + testimonials.length) % testimonials.length)} className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-[#6DB3D7] hover:text-white transition-colors shadow-sm">
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                    <button onClick={() => setCurrentTestimonial(p => (p + 1) % testimonials.length)} className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-[#6DB3D7] hover:text-white transition-colors shadow-sm">
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
                   </div>
-                  <p className="text-[#333] text-lg leading-relaxed mb-4">&ldquo;{locale === 'en' ? testimonials[currentTestimonial]?.textEn : testimonials[currentTestimonial]?.textAr}&rdquo;</p>
-                  <p className="font-bold text-[#2C3E50]">{locale === 'en' ? testimonials[currentTestimonial]?.nameEn : testimonials[currentTestimonial]?.nameAr}</p>
-                </motion.div>
-              </AnimatePresence>
-              {testimonials.length > 1 && (
-                <div className="flex items-center justify-center gap-4 mt-6">
-                  <button onClick={() => setCurrentTestimonial(p => (p - 1 + testimonials.length) % testimonials.length)} className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-[#6DB3D7] hover:text-white transition-colors shadow-sm">
-                    <ChevronRight className="w-5 h-5" />
-                  </button>
-                  <button onClick={() => setCurrentTestimonial(p => (p + 1) % testimonials.length)} className="w-10 h-10 rounded-full bg-white flex items-center justify-center hover:bg-[#6DB3D7] hover:text-white transition-colors shadow-sm">
-                    <ChevronLeft className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
-          </div>
-        </section>
+          </section>
+        </FadeIn>
       )}
 
       {renderImageBanners('after_testimonials')}
@@ -568,101 +616,111 @@ export default function HomePage() {
 
       {/* Videos Section */}
       {videos.length > 0 && (
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.clinicVideos', locale)}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {videos.slice(0, 3).map((video) => (
-                <div key={video.id} className="bg-[#2C3E50] rounded-2xl overflow-hidden aspect-video flex items-center justify-center group cursor-pointer relative">
-                  {video.thumbnail ? (
-                    <img src={video.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
-                  ) : null}
-                  <div className="relative w-16 h-16 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#6DB3D7] transition-colors">
-                    <Play className="w-8 h-8 text-white" style={locale === 'ar' ? { marginRight: '-2px' } : { marginLeft: '-2px' }} />
+        <FadeIn direction="right">
+          <section className="py-16">
+            <div className="max-w-7xl mx-auto px-4">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.clinicVideos', locale)}</h3>
+              <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6" direction="right">
+                {videos.slice(0, 3).map((video) => (
+                  <div key={video.id} className="bg-[#2C3E50] rounded-2xl overflow-hidden aspect-video flex items-center justify-center group cursor-pointer relative">
+                    {video.thumbnail ? (
+                      <img src={video.thumbnail} alt="" className="absolute inset-0 w-full h-full object-cover opacity-60" />
+                    ) : null}
+                    <div className="relative w-16 h-16 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-[#6DB3D7] transition-colors">
+                      <Play className="w-8 h-8 text-white" style={locale === 'ar' ? { marginRight: '-2px' } : { marginLeft: '-2px' }} />
+                    </div>
+                    <p className="absolute bottom-3 left-3 right-3 text-white text-sm font-semibold line-clamp-1">{locale === 'en' ? video.titleEn : video.titleAr}</p>
                   </div>
-                  <p className="absolute bottom-3 left-3 right-3 text-white text-sm font-semibold line-clamp-1">{locale === 'en' ? video.titleEn : video.titleAr}</p>
-                </div>
-              ))}
+                ))}
+              </StaggerContainer>
             </div>
-          </div>
-        </section>
+          </section>
+        </FadeIn>
       )}
 
       {renderImageBanners('after_videos')}
 
       {/* Blog Preview */}
       {articles.length > 0 && (
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.medicalNews', locale)}</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {articles.slice(0, 4).map((article) => (
-                <div key={article.id} className="bg-white rounded-2xl overflow-hidden shadow-sm group cursor-pointer" onClick={() => setCurrentPage('news-article', { id: article.id })}>
-                  {article.image ? (
-                    <div className="h-40 overflow-hidden">
-                      <img src={article.image} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <ImagePlaceholder className="h-40" />
-                  )}
-                  <div className="p-4">
-                    {(article.tagAr || article.tagEn) && (
-                      <span className="text-xs bg-[#6DB3D7] text-white px-2 py-0.5 rounded-full font-bold">{locale === 'en' ? article.tagEn : article.tagAr}</span>
+        <FadeIn direction="left">
+          <section className="py-16 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.medicalNews', locale)}</h3>
+              <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" direction="left">
+                {articles.slice(0, 4).map((article) => (
+                  <div key={article.id} className="bg-white rounded-2xl overflow-hidden shadow-sm group cursor-pointer" onClick={() => setCurrentPage('news-article', { id: article.id })}>
+                    {article.image ? (
+                      <div className="h-40 overflow-hidden">
+                        <img src={article.image} alt="" className="w-full h-full object-cover" />
+                      </div>
+                    ) : (
+                      <ImagePlaceholder className="h-40" />
                     )}
-                    <h4 className="font-semibold text-[#333] mt-2 mb-2 line-clamp-2 group-hover:text-[#6DB3D7] transition-colors leading-relaxed">
-                      {locale === 'en' ? article.titleEn : article.titleAr}
-                    </h4>
-                    <button className="text-[#6DB3D7] text-sm font-semibold hover:underline flex items-center gap-1">
-                      {t('home.continueReading', locale)} <ArrowLeft className="w-3 h-3" />
-                    </button>
+                    <div className="p-4">
+                      {(article.tagAr || article.tagEn) && (
+                        <span className="text-xs bg-[#6DB3D7] text-white px-2 py-0.5 rounded-full font-bold">{locale === 'en' ? article.tagEn : article.tagAr}</span>
+                      )}
+                      <h4 className="font-semibold text-[#333] mt-2 mb-2 line-clamp-2 group-hover:text-[#6DB3D7] transition-colors leading-relaxed">
+                        {locale === 'en' ? article.titleEn : article.titleAr}
+                      </h4>
+                      <button className="text-[#6DB3D7] text-sm font-semibold hover:underline flex items-center gap-1">
+                        {t('home.continueReading', locale)} <ArrowLeft className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </StaggerContainer>
             </div>
-          </div>
-        </section>
+          </section>
+        </FadeIn>
       )}
 
       {renderImageBanners('after_blog')}
 
       {/* CTA Contact */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="bg-[#EBF5FB] rounded-2xl p-8 md:p-12 text-center">
-            <h3 className="text-2xl font-bold text-[#2C3E50] mb-4">{t('home.contactBook', locale)}</h3>
-            <p className="text-[#7F8C8D] mb-6">{t('home.contactDesc', locale)}</p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button onClick={() => setCurrentPage('booking')} className="bg-[#6DB3D7] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#5DADE2] transition-colors">
-                {t('home.bookBtn', locale)}
-              </button>
+      <ScaleIn>
+        <section className="py-16">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="bg-[#EBF5FB] rounded-2xl p-8 md:p-12 text-center">
+              <h3 className="text-2xl font-bold text-[#2C3E50] mb-4">{t('home.contactBook', locale)}</h3>
+              <p className="text-[#7F8C8D] mb-6">{t('home.contactDesc', locale)}</p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <MagneticButton>
+                  <button onClick={() => setCurrentPage('booking')} className="bg-[#6DB3D7] text-white px-8 py-3 rounded-lg font-bold hover:bg-[#5DADE2] transition-colors">
+                    {t('home.bookBtn', locale)}
+                  </button>
+                </MagneticButton>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </ScaleIn>
 
       {renderImageBanners('after_cta_contact')}
 
       {/* Insurance Companies */}
       {insurance.length > 0 && (
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4">
-            <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.insurance', locale)}</h3>
-            <div className="flex flex-wrap items-center justify-center gap-6">
-              {insurance.map((company) => (
-                <div key={company.id} className="w-32 h-20 bg-white rounded-xl shadow-sm flex items-center justify-center border border-gray-100 hover:shadow-md transition-shadow">
-                  {company.logo ? (
-                    <img src={company.logo} alt="" className="w-full h-full object-contain p-2" />
-                  ) : (
-                    <div className="flex flex-col items-center gap-1">
-                      <Shield className="w-6 h-6 text-[#6DB3D7]" />
-                      <span className="text-xs text-[#333] font-medium">{locale === 'en' ? company.nameEn : company.nameAr}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
+        <FadeIn direction="up">
+          <section className="py-16 bg-gray-50">
+            <div className="max-w-7xl mx-auto px-4">
+              <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-10">{t('home.insurance', locale)}</h3>
+              <StaggerContainer className="flex flex-wrap items-center justify-center gap-6">
+                {insurance.map((company) => (
+                  <div key={company.id} className="w-32 h-20 bg-white rounded-xl shadow-sm flex items-center justify-center border border-gray-100 hover:shadow-md transition-shadow">
+                    {company.logo ? (
+                      <img src={company.logo} alt="" className="w-full h-full object-contain p-2" />
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Shield className="w-6 h-6 text-[#6DB3D7]" />
+                        <span className="text-xs text-[#333] font-medium">{locale === 'en' ? company.nameEn : company.nameAr}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </StaggerContainer>
             </div>
-          </div>
-        </section>
+          </section>
+        </FadeIn>
       )}
 
       {renderImageBanners('after_insurance')}

@@ -3,6 +3,7 @@ import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
 import DirProvider from "@/components/DirProvider";
 import AuthProvider from "@/components/AuthProvider";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 export const metadata: Metadata = {
   title: "العيادة التاسعة | مركز طبي متخصص",
@@ -26,10 +27,12 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-white text-[#333333] font-sans">
         <AuthProvider>
-          <DirProvider>
-            {children}
-            <Toaster />
-          </DirProvider>
+          <SmoothScrollProvider>
+            <DirProvider>
+              {children}
+              <Toaster />
+            </DirProvider>
+          </SmoothScrollProvider>
         </AuthProvider>
       </body>
     </html>
