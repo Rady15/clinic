@@ -155,3 +155,12 @@
   animation: pulse-glow 2s ease-in-out infinite;
   z-index: -1;
 }
+
+/* Hide scrollbar for horizontal scroll sections */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

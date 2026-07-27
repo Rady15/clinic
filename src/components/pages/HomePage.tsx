@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import BeforeAfterSection from '@/components/pages/BeforeAfterSection';
+import ServicesShowcase from '@/components/pages/ServicesShowcase';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -398,38 +399,9 @@ export default function HomePage() {
 
       {renderImageBanners('after_info_strip')}
 
-      {/* Services Grid */}
+      {/* Services Showcase */}
       {categories.length > 0 && (
-        <section className="py-16">
-          <div className="max-w-7xl mx-auto px-4">
-            <FadeIn direction="up">
-              <div className="text-center mb-10">
-                <h3 className="text-2xl font-bold text-[#2C3E50] text-center mb-3">{t('home.ourServices', locale)}</h3>
-                <p className="text-[#7F8C8D] text-base max-w-2xl mx-auto">
-                  {locale === 'en' ? 'Explore our range of specialized medical and cosmetic services' : 'استكشف مجموعتنا من الخدمات الطبية والتجميلية المتخصصة'}
-                </p>
-              </div>
-            </FadeIn>
-            <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setCurrentPage('services', { category: cat.slug })}
-                  className="service-card bg-[#EBF5FB] rounded-2xl p-6 text-center group cursor-pointer hover:bg-[#6DB3D7] transition-colors duration-300"
-                >
-                  {cat.image ? (
-                    <img src={cat.image} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3" />
-                  ) : (
-                    <div className="w-16 h-16 bg-[#6DB3D7]/20 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:bg-white transition-colors duration-300">
-                      <Stethoscope className="w-8 h-8 text-[#6DB3D7] group-hover:text-[#6DB3D7] transition-colors duration-300" />
-                    </div>
-                  )}
-                  <p className="text-sm font-semibold text-[#333] group-hover:text-white transition-colors duration-300 leading-tight">{locale === 'en' ? cat.nameEn : cat.nameAr}</p>
-                </button>
-              ))}
-            </StaggerContainer>
-          </div>
-        </section>
+        <ServicesShowcase categories={categories} />
       )}
 
       {renderImageBanners('after_services_grid')}
